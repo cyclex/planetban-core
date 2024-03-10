@@ -1,0 +1,27 @@
+{
+  "log": {
+    "maxsize": 10,
+    "maxbackups": 10,
+    "debug": false
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "anshar",
+    "password": "password",
+    "name": "planet-ban"
+  },
+  "queue": {
+    "host": "localhost",
+    "port": 27017,
+    "name": "chatbot",
+    "expired": 12
+  },
+  "chatbot": {
+    "host": "https://chatbot.co.id",
+    "username": "xxx",
+    "password": "xxx",
+    "namespace": "26a3fc53_044a_4a7b_bf37_dd407f271c48",
+    "parameternamespace": "test_123"
+  }
+}
