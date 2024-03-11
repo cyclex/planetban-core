@@ -39,10 +39,11 @@ type Chatbot struct {
 }
 
 type Service struct {
-	Log      Log      `json:"log"`
-	Database Database `json:"database"`
-	Queue    Queue    `json:"queue"`
-	Chatbot  Chatbot  `json:"chatbot"`
+	Log               Log      `json:"log"`
+	Database          Database `json:"database"`
+	Queue             Queue    `json:"queue"`
+	Chatbot           Chatbot  `json:"chatbot"`
+	UrlHostInfluencer string   `json:"url_host_influencer"`
 }
 
 func LoadServiceConfig(configFilePath string) (cfg *Service, err error) {

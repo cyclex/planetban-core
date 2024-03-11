@@ -9,7 +9,7 @@ import (
 
 func (self *postgreRepo) CreateParticipant(new model.Participant) (err error) {
 
-	new.CreatedAt = time.Now().Local()
+	new.CreatedAt = time.Now().Local().Unix()
 	err = self.DB.Create(&new).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.CreateParticipant]")

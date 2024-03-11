@@ -58,7 +58,6 @@ func (self *cmsUcase) Login(c context.Context, req api.Login) (data map[string]i
 
 	res, err := self.m.Login(req.Username, req.Password)
 	if err != nil {
-		err = errors.Wrap(err, "[usecase.Login]")
 		return
 	}
 
@@ -106,6 +105,9 @@ func (self *cmsUcase) Report(c context.Context, req api.Report, category string)
 	case "summary":
 		data, err = self.m.ReportSummary(req)
 		break
+	case "summary_aggregate":
+		data, err = self.m.ReportSummaryAggregate(req)
+		break
 	default:
 		data, err = self.m.ReportCampaign(req)
 		break
@@ -139,7 +141,6 @@ func (self *cmsUcase) CreateCampaign(c context.Context, req api.Campaign) (err e
 			Name:        v.Name,
 			Source:      v.Source,
 			VoucherCode: v.VoucherCode,
-			URL:         "",
 		})
 	}
 
@@ -202,7 +203,6 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 			Name:        req.Name,
 			Source:      req.Source,
 			VoucherCode: req.VoucherCode,
-			URL:         "",
 		})
 	}
 
@@ -220,7 +220,6 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 				Name:        v[2],
 				Source:      v[1],
 				VoucherCode: v[0],
-				URL:         "",
 			})
 		}
 	}

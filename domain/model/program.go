@@ -11,6 +11,8 @@ type Campaign struct {
 	DiscountProduct    string `gorm:"discount_product" json:"discountProduct"`
 	DiscountProductBan string `gorm:"discount_product_ban" json:"discountProductBan"`
 	ProductName        string `gorm:"product_name" json:"productName"`
+	CreatedAt          int64  `gorm:"autoCreateTime"`
+	UpdatedAt          int64  `gorm:"autoUpdateTime"`
 }
 
 type Kol struct {
@@ -20,7 +22,9 @@ type Kol struct {
 	Name        string `gorm:"name" json:"name"`
 	Source      string `gorm:"source" json:"source"`
 	VoucherCode string `gorm:"voucher_code" json:"voucherCode"`
-	URL         string `gorm:"url" json:"url"`
+	AdsPlatform string `gorm:"add_platform" json:"ads_platform"`
+	CreatedAt   int64  `gorm:"autoCreateTime"`
+	UpdatedAt   int64  `gorm:"autoUpdateTime"`
 }
 
 type Participant struct {
@@ -29,4 +33,6 @@ type Participant struct {
 	CampaignID int64  `gorm:"campaign_id" json:"campaignID"`
 	KolID      int64  `gorm:"kol_id" json:"kolID"`
 	Status     bool   `gorm:"status" json:"status"`
+	CreatedAt  int64  `gorm:"autoCreateTime"`
+	UpdatedAt  int64  `gorm:"autoUpdateTime"`
 }

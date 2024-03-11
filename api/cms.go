@@ -15,10 +15,10 @@ type Access struct {
 }
 
 type Report struct {
-	From    string `json:"from" validate:"required"`
-	To      string `json:"to" validate:"required"`
-	Offset  string `json:"offset"`
-	Limit   string `json:"limit"`
+	From    int    `json:"from" validate:"required"`
+	To      int    `json:"to" validate:"required"`
+	Offset  int    `json:"offset"`
+	Limit   int    `json:"limit"`
 	Column  string `json:"column"`
 	Keyword string `json:"keyword"`
 }

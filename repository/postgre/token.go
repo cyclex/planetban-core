@@ -7,7 +7,7 @@ import (
 
 func (self *postgreRepo) SetToken(updated map[string]interface{}) (err error) {
 
-	err = self.DB.Table("tokens").Where("id = ?", "1").Updates(updated).Error
+	err = self.DB.Model(&model.Token{}).Where("id = ?", "1").Updates(updated).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.SetToken]")
 	}
@@ -17,7 +17,7 @@ func (self *postgreRepo) SetToken(updated map[string]interface{}) (err error) {
 
 func (self *postgreRepo) FindToken() (data model.Token, err error) {
 
-	err = self.DB.Table("tokens").First(&data).Error
+	err = self.DB.Model(&model.Token{}).First(&data).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.FindToken]")
 	}

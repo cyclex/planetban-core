@@ -1,8 +1,7 @@
 {
   "log": {
     "maxsize": 10,
-    "maxbackups": 10,
-    "debug": false
+    "maxbackups": 10
   },
   "database": {
     "host": "localhost",
@@ -24,5 +23,6 @@
     "namespace": "26a3fc53_044a_4a7b_bf37_dd407f271c48",
     "parameternamespace": "test_123",
     "waba_account_number":"6282122912548"
-  }
+  },
+  "url_host_influencer":"https://google.com/"
 }

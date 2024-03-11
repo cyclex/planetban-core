@@ -14,7 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var appLog, cmsLog *logrus.Logger
+var appLog *logrus.Logger
 
 type OrderHandler struct {
 	Ch domain.ChatUcase
@@ -23,7 +23,6 @@ type OrderHandler struct {
 func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 
 	appLog = pkg.New("app", debug)
-	cmsLog = pkg.New("cms", debug)
 
 	handler := &OrderHandler{
 		Ch: chatUcase,

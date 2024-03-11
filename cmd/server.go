@@ -76,13 +76,14 @@ func run_server(server, config string, debug bool) (err error) {
 	parameterNamespace := cfg.Chatbot.ParameterNamespace
 	urlSendMsg := cfg.Chatbot.Host
 	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
+	urlHostInfluencer := cfg.UrlHostInfluencer
 
-	model := postgre.NewPostgreRepository(c, conn)
+	model := postgre.NewPostgreRepository(c, conn, urlHostInfluencer)
 	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
 	cmsUcase := usecase.NewCmsUcase(model, timeoutCtx, urlSendMsg, namespace, parameterNamespace)
 
 	e := echo.New()
-	_HttpDelivery.NewCmsHandler(e, cmsUcase)
+	_HttpDelivery.NewCmsHandler(e, cmsUcase, debug)
 
 	InitCron(chatUcase, timeoutCtx)
 
@@ -167,8 +168,9 @@ func run_webhook(server, config string, debug bool) (err error) {
 	parameterNamespace := cfg.Chatbot.ParameterNamespace
 	urlSendMsg := cfg.Chatbot.Host
 	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
+	urlHostInfluencer := cfg.UrlHostInfluencer
 
-	model := postgre.NewPostgreRepository(c, conn)
+	model := postgre.NewPostgreRepository(c, conn, urlHostInfluencer)
 	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
 
 	e := echo.New()

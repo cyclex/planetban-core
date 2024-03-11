@@ -16,6 +16,7 @@ func (self *postgreRepo) FindCampaignBy(cond map[string]interface{}) (data []mod
 
 func (self *postgreRepo) SetCampaign(id int64, campaign model.Campaign) (err error) {
 
+	campaign.UpdatedAt = time.Now().Local().Unix()
 	err = self.DB.Where("id = ?", id).Updates(campaign).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.SetCampaign] Updates")
@@ -48,7 +49,7 @@ func (self *postgreRepo) CreateCampaign(new model.Campaign, data []model.Kol) (e
 		return err
 	}
 
-	new.CreatedAt = time.Now().Local()
+	new.CreatedAt = time.Now().Local().Unix()
 	err = tx.Create(&new).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.CreateCampaign] Create_1")
@@ -58,6 +59,7 @@ func (self *postgreRepo) CreateCampaign(new model.Campaign, data []model.Kol) (e
 
 	for _, v := range data {
 		v.CampaignID = int64(new.ID)
+		v.CreatedAt = time.Now().Local().Unix()
 		err = self.DB.Create(v).Error
 		if err != nil {
 			err = errors.Wrap(err, "[postgre.CreateCampaign] Create_2")

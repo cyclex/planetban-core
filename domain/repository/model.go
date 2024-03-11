@@ -33,4 +33,5 @@ type ModelRepository interface {
 	ReportCampaign(req api.Report) (data map[string]interface{}, err error)
 	ReportDetail(req api.Report) (data map[string]interface{}, err error)
 	ReportSummary(req api.Report) (data map[string]interface{}, err error)
+	ReportSummaryAggregate(req api.Report) (data map[string]interface{}, err error)
 }

@@ -10,13 +10,18 @@ import (
 	"github.com/cyclex/planet-ban/pkg"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/sirupsen/logrus"
 )
+
+var cmsLog *logrus.Logger
 
 type CmsHandler struct {
 	CmsGw domain.CmsUcase
 }
 
-func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase) {
+func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase, debug bool) {
+
+	cmsLog = pkg.New("cms", debug)
 
 	handler := &CmsHandler{
 		CmsGw: gw,
@@ -28,7 +33,7 @@ func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase) {
 
 	e.POST("/v1/login", handler.login, _AppMW.ReqLogin)
 	e.GET("/v1/checkToken/:token", handler.checkToken)
-	e.POST("/v1/access", handler.access, _AppMW.ReqAccess)
+
 	e.POST("/v1/report/:type", handler.report)
 
 	e.POST("/v1/campaign", handler.createCampaign)
@@ -88,36 +93,6 @@ func (self *CmsHandler) checkToken(c echo.Context) error {
 		code = http.StatusOK
 		res = api.ResponseError{
 			Status: true,
-		}
-	}
-
-	return c.JSON(code, res)
-}
-
-func (self *CmsHandler) access(c echo.Context) error {
-
-	var (
-		request api.Access
-		res     interface{}
-		code    = http.StatusInternalServerError
-		ctx     = c.Request().Context()
-	)
-
-	c.Bind(&request)
-	data, err := self.CmsGw.Access(ctx, request)
-	if err != nil {
-		cmsLog.Error(err)
-		res = api.ResponseError{
-			Status:  false,
-			Message: err.Error(),
-		}
-
-	} else {
-		code = http.StatusOK
-		res = api.ResponseReport{
-			Status:  true,
-			Message: "success",
-			Data:    data,
 		}
 	}
 
