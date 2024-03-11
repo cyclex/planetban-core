@@ -1,7 +1,9 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/cyclex/planet-ban/api"
@@ -15,17 +17,15 @@ import (
 var appLog, cmsLog *logrus.Logger
 
 type OrderHandler struct {
-	Gw domain.OrdersUcase
 	Ch domain.ChatUcase
 }
 
-func NewOrderHandler(e *echo.Echo, ordersUcase domain.OrdersUcase, chatUcase domain.ChatUcase, debug bool) {
+func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 
 	appLog = pkg.New("app", debug)
 	cmsLog = pkg.New("cms", debug)
 
 	handler := &OrderHandler{
-		Gw: ordersUcase,
 		Ch: chatUcase,
 	}
 
@@ -34,38 +34,61 @@ func NewOrderHandler(e *echo.Echo, ordersUcase domain.OrdersUcase, chatUcase dom
 	}))
 
 	e.POST("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
+	e.GET("go/:qp", handler.webhooksInfluencer)
 }
 
 func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 
 	var (
 		request api.ResSendMessage
-		code    = 200
-		ctx     = c.Request().Context()
+		code    = 400
 	)
 
+	defer func(code *int) {
+		res := api.ResponseChatbot{
+			Code:       *code,
+			Message:    http.StatusText(*code),
+			ServerTime: time.Now().Local().Unix(),
+		}
+		c.JSON(*code, res)
+	}(&code)
+
 	c.Bind(&request)
+
 	if len(request.Messages) > 0 {
 
-		if request.Messages[0].Type == "text" {
-			err = self.Gw.CreateQueueChat(ctx, "incoming", request)
-			if err != nil {
-				code = http.StatusInternalServerError
-				appLog.Error(err)
-			}
-		} else {
-			_, err = self.Ch.IncomingMessages(request.Messages[0])
-			if err != nil {
-				appLog.Error(err)
-			}
+		if request.Messages[0].From == "" {
+			return
+		}
+
+		code = 200
+		_, err = self.Ch.IncomingMessages(request.Messages[0])
+		if err != nil {
+			appLog.Error(err)
 		}
 	}
 
-	res := api.ResponseChatbot{
-		Code:       code,
-		Message:    http.StatusText(code),
-		ServerTime: time.Now().Local().Unix(),
+	return
+}
+
+func (self *OrderHandler) webhooksInfluencer(c echo.Context) (err error) {
+
+	id := c.Param("qp")
+	if id == "" {
+		return
 	}
 
-	return c.JSON(code, res)
+	message, err := self.Ch.GetWhatsappTemplateMessage(id)
+	if err != nil {
+		appLog.Error(err)
+		return
+	}
+
+	url := fmt.Sprintf("https://wa.me/%s?text=%s", self.Ch.GetWabaAccountNumber(), url.QueryEscape(message))
+	err = c.Redirect(http.StatusSeeOther, url)
+	if err != nil {
+		appLog.Error(err)
+	}
+
+	return
 }

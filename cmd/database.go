@@ -14,20 +14,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectDB(driver, dsn string) (*gorm.DB, error) {
+func ConnectDB(driver, dsn string, debug bool) (*gorm.DB, error) {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	debugMode := viper.GetBool("log.debug")
-	if debugMode {
+	if debug {
 		db = db.Debug()
 	}
 
 	db.AutoMigrate(
-		&model.Conversations{}, &model.ConversationsLog{},
+		&model.ConversationsLog{},
 		&model.Messages{},
 		&model.Campaign{}, &model.Kol{}, &model.Participant{},
 		&model.AccessCMS{}, &model.Modul{}, &model.Privilege{}, &model.RuleModul{}, &model.Rule{}, &model.UserCMS{},
@@ -46,7 +45,6 @@ func ConnectQueue(dsn string, c context.Context) (*mongo.Client, error) {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(dsn).SetServerAPIOptions(serverAPI)
 	client, err := mongo.Connect(c, opts)
-	// client, err := mongo.NewClient(options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil, err
 	}

@@ -2,16 +2,6 @@ package model
 
 import "github.com/jinzhu/gorm"
 
-type Conversations struct {
-	gorm.Model
-	SessionID string `gorm:"session_id" json:"sessionID"`
-	WAID      string `gorm:"wa_id" json:"waID"`
-	Status    int    `gorm:"status" json:"status"`
-	State     int    `gorm:"state" json:"state"`
-	MessageID int    `gorm:"message_id" json:"messageID"`
-	ExpiredAt int64  `gorm:"expired_at" json:"expiredAt"`
-}
-
 type ConversationsLog struct {
 	gorm.Model
 	SessionID    string `gorm:"session_id" json:"sessionID"`

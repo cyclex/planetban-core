@@ -36,7 +36,7 @@ func PostJson(url string, param interface{}, timeout time.Duration, token string
 	req.Header.Set("senderid", token)
 	resp, err := netClient.Do(req)
 	if err != nil {
-		err = errors.Wrapf(err, "[pkg.httprequest] PostJson.Do url:%s request:%+v statusCode:%v", url, param, resp.StatusCode)
+		err = errors.Wrapf(err, "[pkg.httprequest] PostJson.Do url:%s request:%+v", url, param)
 		statusCode = http.StatusBadGateway
 		return
 	}

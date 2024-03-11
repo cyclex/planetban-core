@@ -129,6 +129,7 @@ func (self *cmsUcase) CreateCampaign(c context.Context, req api.Campaign) (err e
 		EndDate:            req.EndDate,
 		DiscountProduct:    req.DiscProduct,
 		DiscountProductBan: req.DiscProductBan,
+		ProductName:        req.ProductName,
 	}
 
 	var dataKol []model.Kol
@@ -160,6 +161,7 @@ func (self *cmsUcase) SetCampaign(c context.Context, req api.Campaign) (err erro
 		EndDate:            req.EndDate,
 		DiscountProduct:    req.DiscProduct,
 		DiscountProductBan: req.DiscProductBan,
+		ProductName:        req.ProductName,
 	}
 
 	err = self.m.SetCampaign(req.CampaignID, dataCampaign)

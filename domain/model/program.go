@@ -8,8 +8,9 @@ type Campaign struct {
 	Status             bool   `gorm:"status" json:"status"`
 	StartDate          int64  `gorm:"start_date" json:"startDate"`
 	EndDate            int64  `gorm:"end_date" json:"endDate"`
-	DiscountProduct    int64  `gorm:"discount_product" json:"discountProduct"`
-	DiscountProductBan int64  `gorm:"discount_product_ban" json:"discountProductBan"`
+	DiscountProduct    string `gorm:"discount_product" json:"discountProduct"`
+	DiscountProductBan string `gorm:"discount_product_ban" json:"discountProductBan"`
+	ProductName        string `gorm:"product_name" json:"productName"`
 }
 
 type Kol struct {
@@ -29,13 +30,3 @@ type Participant struct {
 	KolID      int64  `gorm:"kol_id" json:"kolID"`
 	Status     bool   `gorm:"status" json:"status"`
 }
-
-// type Report struct {
-// 	gorm.Model
-// 	ReportID     string `gorm:"report_id" json:"reportID"`
-// 	RequestBy    string `gorm:"request_by" json:"requestBy"`
-// 	StartDate    int64  `gorm:"start_date" json:"startDate"`
-// 	EndDate      int64  `gorm:"end_date" json:"endDate"`
-// 	Status       bool   `gorm:"status" json:"status"`
-// 	DownloadFile string `gorm:"download_file" json:"downloadFile"`
-// }

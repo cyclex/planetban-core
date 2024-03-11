@@ -4,17 +4,14 @@ import (
 	"time"
 
 	"github.com/cyclex/planet-ban/domain/model"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )
 
 func (self *postgreRepo) FindKolBy(cond map[string]interface{}) (data []model.Kol, err error) {
 
-	err = self.DB.Table("kol").Where(cond).Find(&data).Error
+	err = self.DB.Where(cond).Find(&data).Error
 	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			err = errors.Wrap(err, "[postgre.FindKolBy]")
-		}
+		err = errors.Wrap(err, "[postgre.FindKolBy]")
 	}
 
 	return

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/cyclex/planet-ban/pkg"
-	"github.com/cyclex/planet-ban/repository/mongo"
 	"github.com/cyclex/planet-ban/repository/postgre"
 	"github.com/cyclex/planet-ban/usecase"
 	"github.com/labstack/echo/v4"
@@ -67,45 +66,25 @@ func run_server(server, config string, debug bool) (err error) {
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s connect_timeout=%d", dbHost, dbPort, dbUser, dbName, dbPass, dbSsl, dbTimeout)
 	fmt.Println(dsn)
-	conn, err := ConnectDB("postgres", dsn)
+	conn, err := ConnectDB("postgres", dsn, debug)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	queueHost := cfg.Queue.Host
-	queuePort := cfg.Queue.Port
-	queueName := cfg.Queue.Name
-	expired := cfg.Queue.Expired
-	if expired < 1 {
-		expired = 24
-	}
-	dsn = fmt.Sprintf("mongodb://%s:%d", queueHost, queuePort)
-	queue, err := ConnectQueue(dsn, c)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer func() {
-		if err = queue.Disconnect(c); err != nil {
-			log.Fatal(err)
-		}
-	}()
 
 	timeoutCtx := time.Duration(30) * time.Second
 	namespace := cfg.Chatbot.Namespace
 	parameterNamespace := cfg.Chatbot.ParameterNamespace
 	urlSendMsg := cfg.Chatbot.Host
+	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
 
-	ordersQueue := mongo.NewmongoRepository(c, queue.Database(queueName), queueName, time.Duration(expired))
 	model := postgre.NewPostgreRepository(c, conn)
-	ordersUcase := usecase.NewOrdersUcase(ordersQueue, timeoutCtx)
-	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, ordersQueue)
+	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
 	cmsUcase := usecase.NewCmsUcase(model, timeoutCtx, urlSendMsg, namespace, parameterNamespace)
 
 	e := echo.New()
 	_HttpDelivery.NewCmsHandler(e, cmsUcase)
 
-	InitCron(ordersUcase, chatUcase, cmsUcase, timeoutCtx)
+	InitCron(chatUcase, timeoutCtx)
 
 	RefreshToken(&processingAuth, chatUcase, c)
 
@@ -138,7 +117,7 @@ func run_webhook(server, config string, debug bool) (err error) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("[run_webhook] panic occurred")
+			fmt.Printf("[run_webhook] panic occurred: %v", err)
 		}
 	}()
 
@@ -179,42 +158,21 @@ func run_webhook(server, config string, debug bool) (err error) {
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s connect_timeout=%d", dbHost, dbPort, dbUser, dbName, dbPass, dbSsl, dbTimeout)
-	conn, err := ConnectDB("postgre", dsn)
+	conn, err := ConnectDB("postgre", dsn, debug)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	queueHost := cfg.Queue.Host
-	queuePort := cfg.Queue.Port
-	queueName := cfg.Queue.Name
-	expired := cfg.Queue.Expired
-	if expired < 1 {
-		expired = 24
-	}
-	dsn = fmt.Sprintf("mongodb://%s:%d", queueHost, queuePort)
-	queue, err := ConnectQueue(dsn, c)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer func() {
-		if err = queue.Disconnect(c); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	timeoutCtx := time.Duration(30) * time.Second
 	namespace := cfg.Chatbot.Namespace
 	parameterNamespace := cfg.Chatbot.ParameterNamespace
 	urlSendMsg := cfg.Chatbot.Host
+	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
 
-	ordersQueue := mongo.NewmongoRepository(c, queue.Database(queueName), queueName, time.Duration(expired))
 	model := postgre.NewPostgreRepository(c, conn)
-	ordersUcase := usecase.NewOrdersUcase(ordersQueue, timeoutCtx)
-	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, ordersQueue)
+	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
 
 	e := echo.New()
-	_HttpDelivery.NewOrderHandler(e, ordersUcase, chatUcase, debug)
+	_HttpDelivery.NewOrderHandler(e, chatUcase, debug)
 
 	go func() {
 		if err := e.Start(server); err != nil {

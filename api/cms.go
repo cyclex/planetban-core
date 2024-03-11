@@ -28,8 +28,9 @@ type Campaign struct {
 	Name           string `json:"name" validate:"required"`
 	StartDate      int64  `json:"startDate" validate:"required"`
 	EndDate        int64  `json:"endDate" validate:"required"`
-	DiscProduct    int64  `json:"discProduct" validate:"required"`
-	DiscProductBan int64  `json:"discProductBan" validate:"required"`
+	DiscProduct    string `json:"discProduct" validate:"required"`
+	DiscProductBan string `json:"discProductBan" validate:"required"`
+	ProductName    string `json:"productName" validate:"required"`
 	Influencer     []Kol  `json:"kol" validate:"required"`
 	File           string `json:"file"`
 }

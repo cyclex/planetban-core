@@ -35,6 +35,7 @@ type Chatbot struct {
 	Password           string `json:"password"`
 	Namespace          string `json:"namespace"`
 	ParameterNamespace string `json:"parmeter_namespace"`
+	WabaAccountNumber  string `json:"waba_account_number"`
 }
 
 type Service struct {

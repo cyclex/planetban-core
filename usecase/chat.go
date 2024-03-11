@@ -3,6 +3,7 @@ package usecase
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -21,49 +22,38 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// var cbLog *logrus.Logger
-// var svcLog *logrus.Logger
-// var winLog *logrus.Logger
-// var cproLog *logrus.Logger
-
-// func init() {
-// 	// cbLog = pkg.New("chatbot")
-// 	// svcLog = pkg.New("service")
-// 	// winLog = pkg.New("winners")
-// 	// cproLog = pkg.New("cpro")
-// }
-
 type chatUcase struct {
 	m                  repository.ModelRepository
 	q                  repository.QueueRepository
 	contextTimeout     time.Duration
 	urlSendMsg         string
 	urlMedia           string
-	limitRedeem        int
-	limitZonk          int
 	namespace          string
 	parameterNamespace string
+	wabaAccountNumber  string
 }
 
-func NewChatUcase(m repository.ModelRepository, urlSendMsg, urlMedia, nameSpace, parameterNamespace string, queueRepo repository.QueueRepository) domain.ChatUcase {
+func NewChatUcase(m repository.ModelRepository, urlSendMsg, urlMedia, nameSpace, parameterNamespace, wabaAccountNumber string) domain.ChatUcase {
 
 	return &chatUcase{
 		m:                  m,
 		urlSendMsg:         urlSendMsg,
 		urlMedia:           urlMedia,
-		q:                  queueRepo,
 		namespace:          nameSpace,
 		parameterNamespace: parameterNamespace,
+		wabaAccountNumber:  wabaAccountNumber,
 	}
 }
 
 func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, err error) {
 
+	fmt.Println(incoming)
 	var cond = map[string]interface{}{}
 	outgoing = "Maaf, kami tidak mengerti maksud anda. Silahkan menggunakan format chat yang sudah ditentukan"
 
 	usernames := pkg.ExtractUsernames(incoming)
-	campaign := pkg.ExtractSentencesAfterWord(incoming, "program")
+	campaign := pkg.ExtractSentencesAfterWord(incoming, "promo")
+	fmt.Println(usernames, campaign)
 
 	if len(usernames) == 0 || len(campaign) == 0 {
 		return
@@ -75,6 +65,10 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	dataCampaign, err := self.m.FindCampaignBy(cond)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.ReplyMessages]")
+		return
+	}
+
+	if len(dataCampaign) == 0 {
 		return
 	}
 
@@ -93,6 +87,10 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
+	if len(dataKol) == 0 {
+		return
+	}
+
 	cond = map[string]interface{}{
 		"msisdn":      waID,
 		"campaign_id": dataCampaign[0].ID,
@@ -106,8 +104,9 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		}
 	}
 
+	timeLeft := time.Unix(dataCampaign[0].EndDate, 0).Local().Format("2006-01-02")
 	if len(dataParticipant) > 0 {
-		outgoing = "Halo Planeters. Segera gunakan kode voucher kamu yang berlaku sd 29 Februari 2024 di seluruh toko Planet"
+		outgoing = fmt.Sprintf("Halo Planeters. Segera gunakan kode voucher kamu yang berlaku sd %s di seluruh toko Planet", timeLeft)
 		return
 	}
 
@@ -123,7 +122,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
-	outgoing = "Halo Planeters! Berikut kode voucher kamu: asdas Kode voucher bisa digunakan untuk mendapat Diskon 10% pada Pembelian produk Servis Rasa Mesin Baru + Engine Cleaning Voucher berlaku sd 29 Februari 2024 di seluruh toko Planet Ban."
+	outgoing = fmt.Sprintf("Halo Planeters! Berikut kode voucher kamu: %s Kode voucher bisa digunakan untuk mendapat Diskon %s pada Pembelian produk %s Voucher berlaku sd %s di seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct, dataCampaign[0].ProductName, timeLeft)
 	return
 }
 
@@ -232,6 +231,7 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 		log.Error(err.Error())
 	}
 
+	fmt.Println(outgoing)
 	res, statusCode, err := self.ChatToUser(waID, outgoing, "text", "")
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
@@ -295,4 +295,37 @@ func (self *chatUcase) RefreshToken() (res []byte, statusCode int, err error) {
 	}
 	return
 
+}
+
+func (self *chatUcase) GetWhatsappTemplateMessage(id string) (message string, err error) {
+
+	cond := map[string]interface{}{
+		"uid": id,
+	}
+	dataKol, err := self.m.FindKolBy(cond)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.GetWhatsappTemplateMessage]")
+		return
+	}
+
+	if len(dataKol) == 0 {
+		return
+	}
+
+	cond = map[string]interface{}{
+		"id": dataKol[0].CampaignID,
+	}
+	dataCampaign, err := self.m.FindCampaignBy(cond)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.GetWhatsappTemplateMessage]")
+		return
+	}
+
+	message = fmt.Sprintf("halo %s anda di %s", dataKol[0].Name, dataCampaign[0].Name)
+
+	return
+}
+
+func (self *chatUcase) GetWabaAccountNumber() (msisdn string) {
+	return self.wabaAccountNumber
 }

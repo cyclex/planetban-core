@@ -9,14 +9,14 @@ import (
 
 func (self *postgreRepo) FindCampaignBy(cond map[string]interface{}) (data []model.Campaign, err error) {
 
-	err = self.DB.Table("campaign").Where(cond).Find(&data).Error
+	err = self.DB.Where(cond).Find(&data).Error
 
 	return
 }
 
 func (self *postgreRepo) SetCampaign(id int64, campaign model.Campaign) (err error) {
 
-	err = self.DB.Table("campaign").Where("id = ?", id).Updates(campaign).Error
+	err = self.DB.Where("id = ?", id).Updates(campaign).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.SetCampaign] Updates")
 	}

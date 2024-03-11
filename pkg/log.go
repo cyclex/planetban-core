@@ -25,7 +25,7 @@ func New(apps string, debug bool) *logrus.Logger {
 		LocalTime:  true}
 
 	if debug {
-		log.SetLevel(logrus.DebugLevel)
+		l.SetLevel(logrus.DebugLevel)
 	}
 
 	return l
