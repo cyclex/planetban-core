@@ -17,7 +17,7 @@ func New(apps string, debug bool) *logrus.Logger {
 	l := logrus.New()
 
 	l.Out = &lumberjack.Logger{
-		Filename:   UseHomeDir() + "/.planet-ban/" + apps + ".log",
+		Filename:   UseHomeDir() + "/.planetban/" + apps + ".log",
 		MaxSize:    viper.GetInt("log.maxsize"),
 		MaxBackups: viper.GetInt("log.maxbackups"),
 		MaxAge:     1500,

@@ -10,12 +10,6 @@
     "password": "password",
     "name": "planet-ban"
   },
-  "queue": {
-    "host": "localhost",
-    "port": 27017,
-    "name": "chatbot",
-    "expired": 12
-  },
   "chatbot": {
     "host": "https://chatbot.co.id",
     "username": "xxx",

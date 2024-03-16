@@ -33,6 +33,7 @@ func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 	}))
 
 	e.POST("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
+	e.GET("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
 	e.GET("go/:qp", handler.webhooksInfluencer)
 }
 
