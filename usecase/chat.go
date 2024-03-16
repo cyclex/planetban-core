@@ -131,6 +131,44 @@ func (self *chatUcase) ChatToUser(waID, chat, types, media string) (res []byte, 
 	var payload interface{}
 	url := self.urlSendMsg + "v2/messages"
 
+	payload = api.ReqMessageCoster{
+		XID:  "{{UNIQUE-ID-FROM-CLIENT}}",
+		To:   waID,
+		Type: "template",
+		Template: api.TemplateCoster{
+			Name: "{{TEMPLATE-NAME}}",
+			Language: api.TemplateLanguage{
+				Policy: "deterministic",
+				Code:   "{{TEMPLATE-LANGUAGE}}",
+			},
+			Components: []api.Component{
+				{
+					Type: "header",
+					Parameters: []api.Parameter{
+						{
+							Type: types,
+							Text: "{{PARAM-HEADER-TEXT}}",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// TODO get token from redis
+	tokenChatbot, _ := self.m.FindToken()
+	res, statusCode, err = httprequest.PostJson(url, payload, self.contextTimeout, "Bearer "+tokenChatbot.AccessToken)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.ChatToUser]")
+	}
+	return
+}
+
+func (self *chatUcase) ChatToUserV1(waID, chat, types, media string) (res []byte, statusCode int, err error) {
+
+	var payload interface{}
+	url := self.urlSendMsg + "v2/messages"
+
 	if types == "text" {
 		payload = api.ReqSendMessageText{
 			RecipientType: "individual",
@@ -243,7 +281,7 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 		return
 	}
 
-	var resChatBot api.ResSendMessage
+	var resChatBot api.ResponseChatbotCoster
 	err = json.Unmarshal(res, &resChatBot)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.IncomingMessages] Unmarshal")

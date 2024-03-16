@@ -40,8 +40,10 @@ func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 
 	var (
-		request api.ResSendMessage
-		code    = 400
+		// request api.ResponseChatbotCoster
+		request map[string]interface{}
+		// code    = 400
+		code = 200
 	)
 
 	defer func(code *int) {
@@ -54,21 +56,24 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 	}(&code)
 
 	c.Bind(&request)
-
-	if len(request.Messages) > 0 {
-
-		if request.Messages[0].From == "" {
-			return
-		}
-
-		code = 200
-		_, err = self.Ch.IncomingMessages(request.Messages[0])
-		if err != nil {
-			appLog.Error(err)
-		}
-	}
+	appLog.Info(request)
 
 	return
+
+	// if len(request.Messages) > 0 {
+
+	// 	if request.Messages[0].From == "" {
+	// 		return
+	// 	}
+
+	// 	code = 200
+	// 	_, err = self.Ch.IncomingMessages(request.Messages[0])
+	// 	if err != nil {
+	// 		appLog.Error(err)
+	// 	}
+	// }
+
+	// return
 }
 
 func (self *OrderHandler) webhooksInfluencer(c echo.Context) (err error) {
