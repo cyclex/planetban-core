@@ -12,8 +12,6 @@
   },
   "chatbot": {
     "host": "https://chatbot.co.id",
-    "username": "xxx",
-    "password": "xxx",
     "account_id": "dummy123",
     "division_id": "dummy123",
     "waba_account_number":"6282122912548",

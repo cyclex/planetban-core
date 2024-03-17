@@ -125,7 +125,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 func (self *chatUcase) ChatToUser(waID, chat, types, media string) (res []byte, statusCode int, err error) {
 
 	var payload interface{}
-	url := self.urlSendMsg + "v2/messages"
+	url := self.urlSendMsg
 
 	payload = api.ReqSendMessageText{
 		XID:         uuid.NewString(),
