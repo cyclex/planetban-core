@@ -41,9 +41,9 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 
 	var (
 		// request api.PayloadWebhook
-		// code    = 200
+		// code    = 400
 		request map[string]interface{}
-		code    = 400
+		code    = 200
 	)
 
 	defer func(code *int) {
@@ -56,7 +56,6 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 	}(&code)
 
 	c.Bind(&request)
-	fmt.Printf("%+v", request)
 	appLog.Error(request)
 	return
 
