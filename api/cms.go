@@ -31,17 +31,18 @@ type Campaign struct {
 	DiscProduct    string `json:"discProduct" validate:"required"`
 	DiscProductBan string `json:"discProductBan" validate:"required"`
 	ProductName    string `json:"productName" validate:"required"`
-	Influencer     []Kol  `json:"kol" validate:"required"`
+	Influencer     []Kol  `json:"kol"`
 	File           string `json:"file"`
 }
 
 type Kol struct {
 	FileName    string `json:"file"`
-	CampaignID  int64  `json:"campaignID"`
+	CampaignID  int64  `json:"campaignID" validate:"required"`
 	KolID       int64  `json:"kolID"`
 	Name        string `json:"name"`
-	Source      string `json:"source"`
-	VoucherCode string `json:"voucherCode"`
+	Source      string `json:"source" validate:"required"`
+	VoucherCode string `json:"voucherCode" validate:"required"`
+	AdsPlatform string `json:"adsPlatform" validate:"required"`
 }
 
 type ResponseError struct {

@@ -16,5 +16,5 @@ type CmsUcase interface {
 	DeleteCampaign(c context.Context, deletedID []int64) (err error)
 	CreateKol(c context.Context, req api.Kol) (err error)
 	SetKol(c context.Context, req api.Kol) (err error)
-	DeleteKol(c context.Context, req api.Kol) (err error)
+	DeleteKol(c context.Context, deletedID int64) (err error)
 }

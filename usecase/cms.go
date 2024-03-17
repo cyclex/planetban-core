@@ -195,18 +195,24 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 		return errors.New("invalid request")
 	}
 
-	var dataKol []model.Kol
+	var (
+		dataKol      []model.Kol
+		skipFirstRow bool
+	)
+
 	if req.Name != "" {
 		dataKol = append(dataKol, model.Kol{
-			UID:         uuid.NewString(),
+			UID:         pkg.ShortUUID(uuid.NewString()),
 			CampaignID:  req.CampaignID,
 			Name:        req.Name,
 			Source:      req.Source,
 			VoucherCode: req.VoucherCode,
+			AdsPlatform: req.AdsPlatform,
 		})
 	}
 
 	if req.FileName != "" {
+		skipFirstRow = true
 		rows, err := pkg.ReadFromFile(req.FileName)
 		if err != nil {
 			err = errors.Wrap(err, "[usecase.CreateKol]")
@@ -220,11 +226,12 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 				Name:        v[2],
 				Source:      v[1],
 				VoucherCode: v[0],
+				AdsPlatform: v[3],
 			})
 		}
 	}
 
-	err = self.m.CreateBulkKol(dataKol)
+	err = self.m.CreateBulkKol(dataKol, skipFirstRow)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.CreateKol]")
 	}
@@ -232,12 +239,12 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 	return
 }
 
-func (self *cmsUcase) DeleteKol(c context.Context, req api.Kol) (err error) {
+func (self *cmsUcase) DeleteKol(c context.Context, deletedID int64) (err error) {
 
 	_, cancel := context.WithTimeout(c, self.contextTimeout)
 	defer cancel()
 
-	err = self.m.RemoveKol([]int64{req.KolID})
+	err = self.m.RemoveKol([]int64{deletedID})
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.DeleteKol]")
 	}
@@ -254,6 +261,7 @@ func (self *cmsUcase) SetKol(c context.Context, req api.Kol) (err error) {
 		Name:        req.Name,
 		Source:      req.Source,
 		VoucherCode: req.VoucherCode,
+		AdsPlatform: req.AdsPlatform,
 	}
 
 	err = self.m.SetKol(req.KolID, dataCampaign)

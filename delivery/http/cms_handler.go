@@ -36,9 +36,13 @@ func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase, debug bool) {
 
 	e.POST("/v1/report/:type", handler.report)
 
-	e.POST("/v1/campaign", handler.createCampaign)
+	e.POST("/v1/campaign", handler.createCampaign, _AppMW.ReqCampaign)
 	e.DELETE("/v1/campaign/:id", handler.deleteCampaign)
 	e.PUT("/v1/campaign/:id", handler.setCampaign)
+
+	e.POST("/v1/kol", handler.createKol, _AppMW.ReqKol)
+	e.DELETE("/v1/kol/:id", handler.deleteKol)
+	e.PUT("/v1/kol/:id", handler.setKol)
 }
 
 func (self *CmsHandler) login(c echo.Context) error {
@@ -202,6 +206,97 @@ func (self *CmsHandler) deleteCampaign(c echo.Context) error {
 	x := int64(n)
 
 	err := self.CmsGw.DeleteCampaign(ctx, []int64{x})
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) createKol(c echo.Context) error {
+
+	var (
+		request api.Kol
+		res     interface{}
+		code    = http.StatusInternalServerError
+		ctx     = c.Request().Context()
+	)
+
+	c.Bind(&request)
+	err := self.CmsGw.CreateKol(ctx, request)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) deleteKol(c echo.Context) error {
+
+	var (
+		res  interface{}
+		code = http.StatusInternalServerError
+		ctx  = c.Request().Context()
+	)
+
+	n, _ := strconv.Atoi(c.Param("id"))
+	x := int64(n)
+
+	err := self.CmsGw.DeleteKol(ctx, x)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) setKol(c echo.Context) error {
+
+	var (
+		request api.Kol
+		res     interface{}
+		ctx     = c.Request().Context()
+		code    = http.StatusInternalServerError
+	)
+
+	c.Bind(&request)
+	n, _ := strconv.Atoi(c.Param("id"))
+	request.KolID = int64(n)
+
+	err := self.CmsGw.SetKol(ctx, request)
 	if err != nil {
 		cmsLog.Error(err)
 		res = api.ResponseError{

@@ -13,7 +13,7 @@ type ModelRepository interface {
 	FindKolBy(cond map[string]interface{}) (data []model.Kol, err error)
 	SetKol(id int64, kol model.Kol) (err error)
 	RemoveKol(id []int64) (err error)
-	CreateBulkKol(new []model.Kol) (err error)
+	CreateBulkKol(new []model.Kol, skipFirstRow bool) (err error)
 
 	FindCampaignBy(cond map[string]interface{}) (data []model.Campaign, err error)
 	SetCampaign(id int64, campaign model.Campaign) (err error)

@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"crypto/md5"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -89,4 +91,15 @@ func IsTimeInBetween(startEpoch, endEpoch int64) bool {
 func IsLetter(s string) bool {
 	var regex, _ = regexp.Compile(`^[a-zA-z\s]+$`)
 	return regex.MatchString(s)
+}
+
+func ShortUUID(uuid string) string {
+	// Hash the UUID using MD5
+	hash := md5.Sum([]byte(uuid))
+
+	// Convert the hash to base64 encoding
+	base64Str := base64.StdEncoding.EncodeToString(hash[:])
+
+	// Take the first 6 characters from the base64 string
+	return base64Str[:6]
 }

@@ -20,7 +20,7 @@ func (self *postgreRepo) FindKolBy(cond map[string]interface{}) (data []model.Ko
 func (self *postgreRepo) SetKol(id int64, kol model.Kol) (err error) {
 
 	kol.UpdatedAt = time.Now().Local().Unix()
-	err = self.DB.Table("kol").Where("id = ?", id).Updates(kol).Error
+	err = self.DB.Where("id = ?", id).Updates(kol).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.SetKol]")
 	}
@@ -51,7 +51,7 @@ func (self *postgreRepo) CreateKol(new model.Kol) (err error) {
 	return
 }
 
-func (self *postgreRepo) CreateBulkKol(rows []model.Kol) (err error) {
+func (self *postgreRepo) CreateBulkKol(rows []model.Kol, skipFirstRow bool) (err error) {
 
 	tx := self.DB.Begin()
 	defer func() {
@@ -68,9 +68,11 @@ func (self *postgreRepo) CreateBulkKol(rows []model.Kol) (err error) {
 	x := 0
 	for _, row := range rows {
 
-		if x == 0 {
-			x++
-			continue
+		if skipFirstRow {
+			if x == 0 {
+				x++
+				continue
+			}
 		}
 		x++
 
