@@ -56,6 +56,7 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 	}(&code)
 
 	c.Bind(&request)
+	fmt.Printf("%+v", request)
 	appLog.Error(request)
 	return
 
