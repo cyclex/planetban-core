@@ -142,6 +142,8 @@ func run_webhook(server, config string, debug bool) (err error) {
 		return
 	}
 
+	appLog = pkg.New("app", debug)
+
 	dbHost := cfg.Database.Host
 	dbPort := cfg.Database.Port
 	dbUser := cfg.Database.User
