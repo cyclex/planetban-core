@@ -72,13 +72,10 @@ func run_server(server, config string, debug bool) (err error) {
 	}
 
 	timeoutCtx := time.Duration(30) * time.Second
-	namespace := cfg.Chatbot.Namespace
-	parameterNamespace := cfg.Chatbot.ParameterNamespace
-	urlSendMsg := cfg.Chatbot.Host
 	urlHostInfluencer := cfg.UrlHostInfluencer
 
 	model := postgre.NewPostgreRepository(c, conn, urlHostInfluencer)
-	cmsUcase := usecase.NewCmsUcase(model, timeoutCtx, urlSendMsg, namespace, parameterNamespace)
+	cmsUcase := usecase.NewCmsUcase(model, timeoutCtx)
 
 	e := echo.New()
 	_HttpDelivery.NewCmsHandler(e, cmsUcase, debug)
@@ -160,14 +157,15 @@ func run_webhook(server, config string, debug bool) (err error) {
 		log.Fatal(err)
 	}
 
-	namespace := cfg.Chatbot.Namespace
-	parameterNamespace := cfg.Chatbot.ParameterNamespace
+	divisionID := cfg.Chatbot.DivisionID
+	accountID := cfg.Chatbot.AccountID
 	urlSendMsg := cfg.Chatbot.Host
+	accessToken := cfg.Chatbot.AccessToken
 	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
 	urlHostInfluencer := cfg.UrlHostInfluencer
 
 	model := postgre.NewPostgreRepository(c, conn, urlHostInfluencer)
-	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
+	chatUcase := usecase.NewChatUcase(model, urlSendMsg, divisionID, accountID, accessToken, wabaAccountNumber)
 
 	e := echo.New()
 	_HttpDelivery.NewOrderHandler(e, chatUcase, debug)

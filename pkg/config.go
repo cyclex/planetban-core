@@ -30,12 +30,13 @@ type Queue struct {
 }
 
 type Chatbot struct {
-	Host               string `json:"host"`
-	Username           string `json:"username"`
-	Password           string `json:"password"`
-	Namespace          string `json:"namespace"`
-	ParameterNamespace string `json:"parmeter_namespace"`
-	WabaAccountNumber  string `json:"waba_account_number"`
+	Host              string `json:"host"`
+	Username          string `json:"username"`
+	Password          string `json:"password"`
+	DivisionID        string `json:"division_id"`
+	AccountID         string `json:"account_id"`
+	AccessToken       string `json:"access_token"`
+	WabaAccountNumber string `json:"waba_account_number"`
 }
 
 type Service struct {

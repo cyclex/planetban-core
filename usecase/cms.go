@@ -19,7 +19,7 @@ type cmsUcase struct {
 	contextTimeout time.Duration
 }
 
-func NewCmsUcase(m repository.ModelRepository, ctxTimeout time.Duration, urlSendMsg, namespace, parameterNamespace string) domain.CmsUcase {
+func NewCmsUcase(m repository.ModelRepository, ctxTimeout time.Duration) domain.CmsUcase {
 
 	return &cmsUcase{
 		m:              m,
