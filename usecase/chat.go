@@ -179,11 +179,13 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 	res, statusCode, err := self.ChatToUser(waID, outgoing, "text", "")
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
+		fmt.Println(err.Error())
 		return
 	}
 
 	if statusCode != http.StatusOK {
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
+		fmt.Println(err.Error())
 		return
 	}
 
