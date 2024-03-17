@@ -4,11 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
-
-var appLog, authLog *logrus.Logger
 
 func main() {
 

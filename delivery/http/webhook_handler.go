@@ -61,6 +61,7 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 		_, err = self.Ch.IncomingMessages(request.Data.Entry[0].Changes[0].Value.Messages[0])
 		if err != nil {
 			appLog.Error(err)
+			fmt.Println(err.Error())
 		}
 	}
 

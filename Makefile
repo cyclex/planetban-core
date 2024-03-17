@@ -11,7 +11,7 @@ build:
 
 # Run the application
 run:
-	$(GOBUILD) -o engine cmd/.go
+	$(GOBUILD) -o engine cmd/*.go
 	mv engine ../
 	sudo systemctl restart planetban-server
 	sudo systemctl restart planetban-webhook

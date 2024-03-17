@@ -41,12 +41,10 @@ func run_server(server, config string, debug bool) (err error) {
 	// load config
 	cfg, err := pkg.LoadServiceConfig(config)
 	if err != nil {
+
 		err = errors.Wrap(err, "[run_server]")
 		return
 	}
-
-	appLog = pkg.New("app", debug)
-	authLog = pkg.New("authchatbot", debug)
 
 	dbHost := cfg.Database.Host
 	dbPort := cfg.Database.Port
@@ -132,8 +130,6 @@ func run_webhook(server, config string, debug bool) (err error) {
 		err = errors.Wrap(err, "[run_webhook]")
 		return
 	}
-
-	appLog = pkg.New("app", debug)
 
 	dbHost := cfg.Database.Host
 	dbPort := cfg.Database.Port
