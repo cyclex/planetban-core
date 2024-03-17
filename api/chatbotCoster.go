@@ -1,54 +1,24 @@
 package api
 
-type TemplateLanguage struct {
-	Policy string `json:"policy"`
-	Code   string `json:"code"`
+// Request
+type Text struct {
+	Body string `json:"body"`
 }
 
-type Parameter struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
+type Data struct {
+	MessagingProduct string `json:"messaging_product"`
+	RecipientType    string `json:"recipient_type"`
+	To               string `json:"to"`
+	Type             string `json:"type"`
+	Text             Text   `json:"text"`
 }
 
-type Component struct {
-	Type       string      `json:"type"`
-	Parameters []Parameter `json:"parameters"`
-}
-
-type TemplateCoster struct {
-	Name       string           `json:"name"`
-	Language   TemplateLanguage `json:"language"`
-	Components []Component      `json:"components"`
-}
-
-type ReqMessageCoster struct {
-	ID       interface{}    `json:"id,omitempty"`
-	XID      string         `json:"xid"`
-	To       string         `json:"to"`
-	Type     string         `json:"type"`
-	Template TemplateCoster `json:"template"`
-}
-
-type Meta struct {
-	Author  string `json:"author"`
-	Meta    string `json:"meta,omitempty"`
-	Version string `json:"version,omitempty"`
-}
-
-type Contact struct {
-	Input string `json:"input"`
-	WAID  string `json:"wa_id"`
-}
-
-type ErrorDetail struct {
-	Code   int    `json:"code"`
-	Detail string `json:"detail"`
-	Title  string `json:"title"`
-}
-
-type ResponseChatbotCoster struct {
-	Error    ErrorDetail        `json:"error"`
-	Meta     Meta               `json:"meta"`
-	Contacts []Contact          `json:"contacts"`
-	Messages []ReqMessageCoster `json:"messages"`
+type ReqSendMessageText struct {
+	XID         string `json:"xid"`
+	ChannelID   string `json:"channel_id"`
+	AccountID   string `json:"account_id"`
+	DivisionID  string `json:"division_id"`
+	IsHelpdesk  bool   `json:"is_helpdesk"`
+	MessageType string `json:"message_type"`
+	Data        Data   `json:"data"`
 }

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,7 +10,6 @@ import (
 	"github.com/apex/log"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 
 	"github.com/cyclex/planet-ban/api"
 	"github.com/cyclex/planet-ban/domain"
@@ -23,25 +21,23 @@ import (
 )
 
 type chatUcase struct {
-	m                  repository.ModelRepository
-	q                  repository.QueueRepository
-	contextTimeout     time.Duration
-	urlSendMsg         string
-	urlMedia           string
-	namespace          string
-	parameterNamespace string
-	wabaAccountNumber  string
+	m                 repository.ModelRepository
+	urlSendMsg        string
+	wabaAccountNumber string
+	DivisionID        string
+	AccountID         string
+	AccessToken       string
 }
 
-func NewChatUcase(m repository.ModelRepository, urlSendMsg, urlMedia, nameSpace, parameterNamespace, wabaAccountNumber string) domain.ChatUcase {
+func NewChatUcase(m repository.ModelRepository, urlSendMsg, divisionID, accountID, accessToken, wabaAccountNumber string) domain.ChatUcase {
 
 	return &chatUcase{
-		m:                  m,
-		urlSendMsg:         urlSendMsg,
-		urlMedia:           urlMedia,
-		namespace:          nameSpace,
-		parameterNamespace: parameterNamespace,
-		wabaAccountNumber:  wabaAccountNumber,
+		m:                 m,
+		urlSendMsg:        urlSendMsg,
+		DivisionID:        divisionID,
+		AccountID:         accountID,
+		AccessToken:       accessToken,
+		wabaAccountNumber: wabaAccountNumber,
 	}
 }
 
@@ -131,115 +127,25 @@ func (self *chatUcase) ChatToUser(waID, chat, types, media string) (res []byte, 
 	var payload interface{}
 	url := self.urlSendMsg + "v2/messages"
 
-	payload = api.ReqMessageCoster{
-		XID:  "{{UNIQUE-ID-FROM-CLIENT}}",
-		To:   waID,
-		Type: "template",
-		Template: api.TemplateCoster{
-			Name: "{{TEMPLATE-NAME}}",
-			Language: api.TemplateLanguage{
-				Policy: "deterministic",
-				Code:   "{{TEMPLATE-LANGUAGE}}",
-			},
-			Components: []api.Component{
-				{
-					Type: "header",
-					Parameters: []api.Parameter{
-						{
-							Type: types,
-							Text: "{{PARAM-HEADER-TEXT}}",
-						},
-					},
-				},
+	payload = api.ReqSendMessageText{
+		XID:         uuid.NewString(),
+		ChannelID:   "whatsapp-cloud",
+		AccountID:   self.AccountID,
+		DivisionID:  self.DivisionID,
+		IsHelpdesk:  false,
+		MessageType: "outbound",
+		Data: api.Data{
+			MessagingProduct: "whatsapp",
+			RecipientType:    "individual",
+			To:               waID,
+			Type:             types,
+			Text: api.Text{
+				Body: chat,
 			},
 		},
 	}
 
-	// TODO get token from redis
-	tokenChatbot, _ := self.m.FindToken()
-	res, statusCode, err = httprequest.PostJson(url, payload, self.contextTimeout, "Bearer "+tokenChatbot.AccessToken)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.ChatToUser]")
-	}
-	return
-}
-
-func (self *chatUcase) ChatToUserV1(waID, chat, types, media string) (res []byte, statusCode int, err error) {
-
-	var payload interface{}
-	url := self.urlSendMsg + "v2/messages"
-
-	if types == "text" {
-		payload = api.ReqSendMessageText{
-			RecipientType: "individual",
-			To:            waID,
-			Type:          types,
-			Text: api.Text{
-				Body: chat,
-			},
-		}
-	} else if types == "image" {
-		payload = api.ReqSendMessageImage{
-			RecipientType: "individual",
-			To:            waID,
-			Type:          types,
-			Image: api.Image{
-				Link:    media,
-				Caption: chat,
-			},
-		}
-	} else if types == "broadcast" {
-		var (
-			dataParams []api.Parameters
-			dataComp   []api.Components
-		)
-
-		tmpParam := api.Parameters{
-			Type: "text",
-			Text: chat,
-		}
-		for i := 0; i < 1; i++ {
-			dataParams = append(dataParams, tmpParam)
-		}
-
-		tmpComp := api.Components{
-			Type:       "body",
-			Parameters: dataParams,
-		}
-
-		for i := 0; i < 1; i++ {
-			dataComp = append(dataComp, tmpComp)
-		}
-
-		payload = api.ReqSendBroadcast{
-			To:   waID,
-			Type: "template",
-			// Hsm: api.Hsm{
-			// 	Namespace:   "26a3fc53_044a_4a7b_bf37_dd407f271c48",
-			// 	ElementName: "info_hadiah",
-			// 	Language: api.Language{
-			// 		Code:   "id",
-			// 		Policy: "deterministic",
-			// 	},
-			// 	LocalParam: dataParams,
-			// },
-			Template: api.Template{
-				Namespace: self.namespace,
-				Name:      self.parameterNamespace,
-				Language: api.Language{
-					Policy: "deterministic",
-					Code:   "id",
-				},
-				Components: dataComp,
-			},
-		}
-
-		// winLog.Infof("WhatsAppID:%s , payload:%+v", waID, payload)
-	}
-
-	// TODO get token from redis
-	tokenChatbot, _ := self.m.FindToken()
-	res, statusCode, err = httprequest.PostJson(url, payload, self.contextTimeout, "Bearer "+tokenChatbot.AccessToken)
+	res, statusCode, err = httprequest.PostJson(url, payload, 15*time.Second, self.AccessToken)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.ChatToUser]")
 	}
@@ -281,13 +187,6 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 		return
 	}
 
-	var resChatBot api.ResponseChatbotCoster
-	err = json.Unmarshal(res, &resChatBot)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.IncomingMessages] Unmarshal")
-		return
-	}
-
 	newCLog = model.ConversationsLog{
 		SessionID:    sessID,
 		Chat:         outgoing,
@@ -301,38 +200,6 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 	}
 
 	return
-}
-
-func (self *chatUcase) FindToken() (data model.Token, err error) {
-
-	data, err = self.m.FindToken()
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.FindToken]")
-	}
-	return
-}
-
-func (self *chatUcase) SetToken(updated map[string]interface{}) (err error) {
-
-	err = self.m.SetToken(updated)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.SetToken]")
-	}
-	return
-}
-
-func (self *chatUcase) RefreshToken() (res []byte, statusCode int, err error) {
-
-	url := self.urlSendMsg + "/wa/users/login"
-	credential := viper.GetString("chatbot.username") + ":" + viper.GetString("chatbot.password")
-	token := base64.StdEncoding.EncodeToString([]byte(credential))
-
-	res, statusCode, err = httprequest.PostJson(url, nil, self.contextTimeout, "Basic "+token)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.RefreshToken]")
-	}
-	return
-
 }
 
 func (self *chatUcase) GetWhatsappTemplateMessage(id string) (message string, err error) {

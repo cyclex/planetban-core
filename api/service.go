@@ -1,8 +1,7 @@
 package api
 
 type ResponseChatbot struct {
-	Code       int                    `json:"code"`
-	Message    string                 `json:"message"`
-	ServerTime int64                  `json:"servertime"`
-	Data       map[string]interface{} `json:"request"`
+	Code       int    `json:"code"`
+	Message    string `json:"message"`
+	ServerTime int64  `json:"servertime"`
 }

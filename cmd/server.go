@@ -75,19 +75,13 @@ func run_server(server, config string, debug bool) (err error) {
 	namespace := cfg.Chatbot.Namespace
 	parameterNamespace := cfg.Chatbot.ParameterNamespace
 	urlSendMsg := cfg.Chatbot.Host
-	wabaAccountNumber := cfg.Chatbot.WabaAccountNumber
 	urlHostInfluencer := cfg.UrlHostInfluencer
 
 	model := postgre.NewPostgreRepository(c, conn, urlHostInfluencer)
-	chatUcase := usecase.NewChatUcase(model, urlSendMsg, "", namespace, parameterNamespace, wabaAccountNumber)
 	cmsUcase := usecase.NewCmsUcase(model, timeoutCtx, urlSendMsg, namespace, parameterNamespace)
 
 	e := echo.New()
 	_HttpDelivery.NewCmsHandler(e, cmsUcase, debug)
-
-	InitCron(chatUcase, timeoutCtx)
-
-	RefreshToken(&processingAuth, chatUcase, c)
 
 	go func() {
 		if err := e.Start(server); err != nil {
