@@ -184,8 +184,10 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 	}
 
 	if statusCode != http.StatusOK {
+		err = errors.New(http.StatusText(statusCode))
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
 		fmt.Println(err.Error())
+		fmt.Printf("%s\n", res)
 		return
 	}
 
