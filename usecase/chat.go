@@ -53,6 +53,9 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
+	usernames[0] = strings.ReplaceAll(usernames[0], "*", "")
+	campaign[0] = strings.ReplaceAll(campaign[0], "*", "")
+
 	cond = map[string]interface{}{
 		"name": campaign[0],
 	}
