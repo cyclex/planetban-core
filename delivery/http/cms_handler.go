@@ -40,7 +40,7 @@ func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase, debug bool) {
 	e.DELETE("/v1/campaign/:id", handler.deleteCampaign)
 	e.PUT("/v1/campaign/:id", handler.setCampaign)
 
-	e.POST("/v1/kol", handler.createKol, _AppMW.ReqKol)
+	e.POST("/v1/kol", handler.createKol)
 	e.DELETE("/v1/kol/:id", handler.deleteKol)
 	e.PUT("/v1/kol/:id", handler.setKol)
 }
