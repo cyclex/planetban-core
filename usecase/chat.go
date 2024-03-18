@@ -223,7 +223,7 @@ func (self *chatUcase) GetWhatsappTemplateMessage(id string) (message string, er
 		return
 	}
 
-	message = fmt.Sprintf("halo %s anda di %s", dataKol[0].Name, dataCampaign[0].Name)
+	message = fmt.Sprintf("Halo Planet Ban. Saya followers *%s* tertarik mengikuti Promo *%s*", dataKol[0].Name, dataCampaign[0].Name)
 
 	return
 }
