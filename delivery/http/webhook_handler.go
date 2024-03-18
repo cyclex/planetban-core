@@ -10,6 +10,7 @@ import (
 	"github.com/cyclex/planet-ban/domain"
 	"github.com/cyclex/planet-ban/pkg"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,9 +28,9 @@ func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 		Ch: chatUcase,
 	}
 
-	// e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-	// 	Output: pkg.New("middleware", debug).Out,
-	// }))
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Output: pkg.New("middleware", debug).Out,
+	}))
 
 	e.POST("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
 	e.GET("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
@@ -39,10 +40,8 @@ func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 
 	var (
-		// request api.PayloadWebhook
-		// code    = 400
-		request map[string]interface{}
-		code    = 200
+		request api.PayloadWebhook
+		code    = 400
 	)
 
 	defer func(code *int) {
@@ -55,28 +54,22 @@ func (self *OrderHandler) webhooksWhatsapp(c echo.Context) (err error) {
 		c.JSON(*code, res)
 	}(&code)
 
-	request = map[string]interface{}{}
 	err = c.Bind(&request)
 	if err != nil {
-		fmt.Println(err.Error())
 		appLog.Error(err)
 	}
 
-	fmt.Printf("%+v", request)
-	appLog.Error(request)
+	if len(request.Data.Entry[0].Changes[0].Value.Messages) > 0 {
+
+		code = 200
+		_, err = self.Ch.IncomingMessages(request.Data.Entry[0].Changes[0].Value.Messages[0])
+		if err != nil {
+			appLog.Error(err)
+			fmt.Println(err.Error())
+		}
+	}
+
 	return
-
-	// if len(request.Data.Entry[0].Changes[0].Value.Messages) > 0 {
-
-	// 	code = 200
-	// 	_, err = self.Ch.IncomingMessages(request.Data.Entry[0].Changes[0].Value.Messages[0])
-	// 	if err != nil {
-	// 		appLog.Error(err)
-	// 		fmt.Println(err.Error())
-	// 	}
-	// }
-
-	// return
 }
 
 func (self *OrderHandler) webhooksInfluencer(c echo.Context) (err error) {
