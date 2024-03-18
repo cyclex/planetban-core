@@ -10,7 +10,6 @@ import (
 	"github.com/cyclex/planet-ban/domain"
 	"github.com/cyclex/planet-ban/pkg"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,9 +27,9 @@ func NewOrderHandler(e *echo.Echo, chatUcase domain.ChatUcase, debug bool) {
 		Ch: chatUcase,
 	}
 
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Output: pkg.New("middleware", debug).Out,
-	}))
+	// e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+	// 	Output: pkg.New("middleware", debug).Out,
+	// }))
 
 	e.POST("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
 	e.GET("/v1/webhooks/whatsapp", handler.webhooksWhatsapp)
