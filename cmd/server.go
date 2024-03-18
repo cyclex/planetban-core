@@ -63,7 +63,6 @@ func run_server(server, config string, debug bool) (err error) {
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s connect_timeout=%d", dbHost, dbPort, dbUser, dbName, dbPass, dbSsl, dbTimeout)
-	fmt.Println(dsn)
 	conn, err := ConnectDB("postgres", dsn, debug)
 	if err != nil {
 		log.Fatal(err)

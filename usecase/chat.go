@@ -43,13 +43,11 @@ func NewChatUcase(m repository.ModelRepository, urlSendMsg, divisionID, accountI
 
 func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, err error) {
 
-	fmt.Println(incoming)
 	var cond = map[string]interface{}{}
 	outgoing = "Maaf, kami tidak mengerti maksud anda. Silahkan menggunakan format chat yang sudah ditentukan"
 
 	usernames := pkg.ExtractUsernames(incoming)
 	campaign := pkg.ExtractSentencesAfterWord(incoming, "promo")
-	fmt.Println(usernames, campaign)
 
 	if len(usernames) == 0 || len(campaign) == 0 {
 		return
@@ -90,7 +88,6 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	cond = map[string]interface{}{
 		"msisdn":      waID,
 		"campaign_id": dataCampaign[0].ID,
-		"kol_id":      dataKol[0].ID,
 	}
 	dataParticipant, err := self.m.FindParticipant(cond)
 	if err != nil {
@@ -175,7 +172,6 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 		log.Error(err.Error())
 	}
 
-	fmt.Println(outgoing)
 	res, statusCode, err := self.ChatToUser(waID, outgoing, "text", "")
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
