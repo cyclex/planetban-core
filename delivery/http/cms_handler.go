@@ -43,6 +43,11 @@ func NewCmsHandler(e *echo.Echo, gw domain.CmsUcase, debug bool) {
 	e.POST("/v1/kol", handler.createKol)
 	e.DELETE("/v1/kol/:id", handler.deleteKol)
 	e.PUT("/v1/kol/:id", handler.setKol)
+
+	e.POST("/v1/user", handler.createUser)
+	e.DELETE("/v1/user/:id", handler.deleteUser)
+	e.PUT("/v1/user/:id", handler.setUser)
+	e.PUT("/v1/user/password", handler.setUserPassword)
 }
 
 func (self *CmsHandler) login(c echo.Context) error {
@@ -297,6 +302,127 @@ func (self *CmsHandler) setKol(c echo.Context) error {
 	request.KolID = int64(n)
 
 	err := self.CmsGw.SetKol(ctx, request)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) createUser(c echo.Context) error {
+
+	var (
+		request api.User
+		res     interface{}
+		code    = http.StatusInternalServerError
+		ctx     = c.Request().Context()
+	)
+
+	c.Bind(&request)
+	err := self.CmsGw.CreateUser(ctx, request)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) deleteUser(c echo.Context) error {
+
+	var (
+		res  interface{}
+		code = http.StatusInternalServerError
+		ctx  = c.Request().Context()
+	)
+
+	n, _ := strconv.Atoi(c.Param("id"))
+	x := int64(n)
+
+	err := self.CmsGw.DeleteUser(ctx, x)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) setUser(c echo.Context) error {
+
+	var (
+		request api.User
+		res     interface{}
+		ctx     = c.Request().Context()
+		code    = http.StatusInternalServerError
+	)
+
+	c.Bind(&request)
+	n, _ := strconv.Atoi(c.Param("id"))
+	request.ID = int64(n)
+
+	err := self.CmsGw.SetUser(ctx, request)
+	if err != nil {
+		cmsLog.Error(err)
+		res = api.ResponseError{
+			Status:  false,
+			Message: err.Error(),
+		}
+
+	} else {
+		code = http.StatusOK
+		res = api.ResponseSuccess{
+			Status:  true,
+			Message: "success",
+		}
+	}
+
+	return c.JSON(code, res)
+}
+
+func (self *CmsHandler) setUserPassword(c echo.Context) error {
+
+	var (
+		request api.User
+		res     interface{}
+		ctx     = c.Request().Context()
+		code    = http.StatusInternalServerError
+	)
+
+	c.Bind(&request)
+
+	err := self.CmsGw.SetUserPassword(ctx, request)
 	if err != nil {
 		cmsLog.Error(err)
 		res = api.ResponseError{

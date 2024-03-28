@@ -68,10 +68,10 @@ func (self *cmsUcase) Login(c context.Context, req api.Login) (data map[string]i
 	}
 
 	data = map[string]interface{}{
-		"username":     res.Username,
-		"user_id":      res.ID,
-		"privilege_id": res.PrivilegeID,
-		"token":        tokenCms,
+		"username": res.Username,
+		"user_id":  res.ID,
+		"level":    res.Level,
+		"token":    tokenCms,
 	}
 
 	return
@@ -102,11 +102,14 @@ func (self *cmsUcase) Report(c context.Context, req api.Report, category string)
 	case "detail":
 		data, err = self.m.ReportDetail(req)
 		break
-	case "summary":
-		data, err = self.m.ReportSummary(req)
+	case "detail_summary":
+		data, err = self.m.ReportDetailSummary(req)
 		break
 	case "summary_aggregate":
 		data, err = self.m.ReportSummaryAggregate(req)
+		break
+	case "user":
+		data, err = self.m.ReportUser(req)
 		break
 	default:
 		data, err = self.m.ReportCampaign(req)
@@ -267,6 +270,80 @@ func (self *cmsUcase) SetKol(c context.Context, req api.Kol) (err error) {
 	err = self.m.SetKol(req.KolID, dataCampaign)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.SetKol]")
+	}
+
+	return
+}
+
+func (self *cmsUcase) CreateUser(c context.Context, req api.User) (err error) {
+
+	_, cancel := context.WithTimeout(c, self.contextTimeout)
+	defer cancel()
+
+	if req.Username == "" && req.Level == "" {
+		return errors.New("invalid request")
+	}
+
+	var dataUser model.UserCMS
+
+	dataUser = model.UserCMS{
+		Username: req.Username,
+		Level:    req.Level,
+		Password: req.Password,
+	}
+
+	err = self.m.CreateUser(dataUser)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.CreateUser]")
+	}
+
+	return
+}
+
+func (self *cmsUcase) DeleteUser(c context.Context, deletedID int64) (err error) {
+
+	_, cancel := context.WithTimeout(c, self.contextTimeout)
+	defer cancel()
+
+	err = self.m.RemoveUser([]int64{deletedID})
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.DeleteUser]")
+	}
+
+	return
+}
+
+func (self *cmsUcase) SetUser(c context.Context, req api.User) (err error) {
+
+	_, cancel := context.WithTimeout(c, self.contextTimeout)
+	defer cancel()
+
+	dataUser := model.UserCMS{
+		Username: req.Username,
+		Level:    req.Level,
+		Password: req.Password,
+	}
+
+	err = self.m.SetUser(req.ID, dataUser)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.SetUser]")
+	}
+
+	return
+}
+
+func (self *cmsUcase) SetUserPassword(c context.Context, req api.User) (err error) {
+
+	_, cancel := context.WithTimeout(c, self.contextTimeout)
+	defer cancel()
+
+	dataUser := model.UserCMS{
+		Password: req.Password,
+	}
+
+	err = self.m.SetUserPassword(req.Username, dataUser)
+	if err != nil {
+		err = errors.Wrap(err, "[usecase.SetUser]")
 	}
 
 	return

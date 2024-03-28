@@ -88,12 +88,15 @@ func (self *postgreRepo) SetTokenLogin(id uint, token string) (err error) {
 func (self *postgreRepo) ReportCampaign(req api.Report) (data map[string]interface{}, err error) {
 
 	type tmp struct {
-		Rnum      string `json:"rnum"`
-		Id        string `json:"id"`
-		Name      string `json:"name"`
-		CreatedAt string `json:"created_at"`
-		StartDate string `json:"start_date"`
-		EndDate   string `json:"end_date"`
+		Rnum               string `json:"rnum"`
+		Id                 string `json:"id"`
+		Name               string `json:"name"`
+		CreatedAt          string `json:"created_at"`
+		StartDate          string `json:"start_date"`
+		EndDate            string `json:"end_date"`
+		ProductName        string `json:"product_name"`
+		DiscountProductBan string `json:"discount_product_ban"`
+		DiscountProduct    string `json:"discount_product"`
 	}
 
 	var (
@@ -111,7 +114,7 @@ func (self *postgreRepo) ReportCampaign(req api.Report) (data map[string]interfa
 	}
 
 	q.Count(&rows)
-	err = q.Order("created_at desc").Limit(req.Limit).Offset(req.Offset).Find(&res).Error
+	err = q.Order(fmt.Sprintf("created_at %s", req.Sort)).Limit(req.Limit).Offset(req.Offset).Find(&res).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportCampaign]")
 		return
@@ -123,12 +126,15 @@ func (self *postgreRepo) ReportCampaign(req api.Report) (data map[string]interfa
 		endDate, _ := strconv.ParseInt(v.EndDate, 10, 64)
 
 		x := map[string]interface{}{
-			"rNum":         v.Rnum,
-			"campaignName": v.Name,
-			"createdAt":    time.Unix(createdAt, 0).Local().Format("2006-01-02 15:04:05"),
-			"startDate":    time.Unix(startDate, 0).Local().Format("2006-01-02 15:04:05"),
-			"endDate":      time.Unix(endDate, 0).Local().Format("2006-01-02 15:04:05"),
-			"id":           v.Id,
+			"rNum":           v.Rnum,
+			"campaignName":   v.Name,
+			"createdAt":      time.Unix(createdAt, 0).Local().Format("2006-01-02 15:04:05"),
+			"startDate":      time.Unix(startDate, 0).Local().Format("2006-01-02 15:04:05"),
+			"endDate":        time.Unix(endDate, 0).Local().Format("2006-01-02 15:04:05"),
+			"id":             v.Id,
+			"productName":    v.ProductName,
+			"discProductBan": v.DiscountProductBan,
+			"discProduct":    v.DiscountProduct,
 		}
 
 		datas = append(datas, x)
@@ -152,6 +158,8 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 		AdsPlatform string `json:"ads_platform"`
 		VoucherCode string `json:"voucher_code"`
 		UID         string `json:"uid"`
+		CampaignID  string `json:"campaign_id"`
+		CreatedAt   int64  `json:"created_at"`
 	}
 
 	var (
@@ -166,7 +174,7 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 	q := self.DB.Model(&model.Kol{}).Select("*, row_number() OVER () as rnum").Where(cond)
 
 	q.Count(&rows)
-	err = q.Order("created_at desc").Limit(req.Limit).Offset(req.Offset).Find(&res).Error
+	err = q.Order(fmt.Sprintf("created_at %s", req.Sort)).Limit(req.Limit).Offset(req.Offset).Find(&res).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportDetail]")
 		return
@@ -177,10 +185,12 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 			"rNum":        v.Rnum,
 			"voucherCode": v.VoucherCode,
 			"source":      v.Source,
-			"kolName":     v.Name,
+			"kolName":     fmt.Sprintf("@%s", v.Name),
 			"adsPlatform": v.AdsPlatform,
 			"urlLink":     fmt.Sprintf("%s/%s", self.UrlHost, v.UID),
 			"id":          v.ID,
+			"campaignID":  v.CampaignID,
+			"createdAt":   time.Unix(v.CreatedAt, 0).Format("2006-01-02 15:04:05"),
 		}
 
 		datas = append(datas, x)
@@ -194,7 +204,7 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 	return
 }
 
-func (self *postgreRepo) ReportSummary(req api.Report) (data map[string]interface{}, err error) {
+func (self *postgreRepo) ReportDetailSummary(req api.Report) (data map[string]interface{}, err error) {
 
 	type summary struct {
 		Rnum         string `json:"rnum"`
@@ -205,6 +215,7 @@ func (self *postgreRepo) ReportSummary(req api.Report) (data map[string]interfac
 		AdsPlatform  string `json:"ads_platform"`
 		Msisdn       string `json:"msisdn"`
 		CreatedAt    string `json:"created_at"`
+		CampaignID   string `json:"campaign_id"`
 	}
 	var (
 		sum   []summary
@@ -212,19 +223,11 @@ func (self *postgreRepo) ReportSummary(req api.Report) (data map[string]interfac
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform,participants.msisdn, participants.created_at, c.name as campaign_name, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform,participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
 
-	if req.From != 0 || req.To != 0 {
-		q = q.Where("participants.created_at BETWEEN ? AND ?", req.From, req.To)
-	}
-
-	if req.Keyword != "" {
-		column := fmt.Sprintf("%s ilike ?", "c.name")
-		q = q.Where(column, "%"+req.Keyword+"%")
-	}
-
+	q = q.Where("k.id", req.Keyword)
 	q.Count(&rows)
-	err = q.Order("participants.created_at desc").Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
+	err = q.Order(fmt.Sprintf("participants.created_at %s", req.Sort)).Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportSummary]")
 		return
@@ -242,6 +245,7 @@ func (self *postgreRepo) ReportSummary(req api.Report) (data map[string]interfac
 			"adsPlatform":  v.AdsPlatform,
 			"msisdn":       v.Msisdn,
 			"created_at":   time.Unix(createdAt, 0).Local().Format("2006-01-02 15:04:05"),
+			"campaignID":   v.CampaignID,
 		}
 		datas = append(datas, x)
 	}
@@ -264,6 +268,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		CampaignName  string `json:"campaign_name"`
 		AdsPlatform   string `json:"ads_platform"`
 		TotalReceived int64  `json:"total_received"`
+		KolID         string `json:"kol_id"`
 	}
 	var (
 		sum   []summary
@@ -271,20 +276,20 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform, k.created_at, COUNT(k.name) AS total_received, c.name as campaign_name, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform, k.created_at, COUNT(k.name) AS total_received, c.name as campaign_name, k.id as kol_id, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
 
 	if req.From != 0 || req.To != 0 {
 		q = q.Where("participants.created_at BETWEEN ? AND ?", req.From, req.To)
 	}
 
 	if req.Keyword != "" {
-		column := fmt.Sprintf("%s ilike ?", "c.name")
+		column := fmt.Sprintf("%s ilike ?", "k.name")
 		q = q.Where(column, "%"+req.Keyword+"%")
 	}
 
 	q.Count(&rows)
-	q = q.Order("k.created_at desc")
-	q = q.Group("k.voucher_code, k.source, k.name, k.ads_platform, k.created_at, c.name")
+	q = q.Order(fmt.Sprintf("c.name %s", req.Sort))
+	q = q.Group("k.voucher_code, k.source, k.name, k.ads_platform, k.created_at, c.name, k.id")
 	err = q.Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportSummary]")
@@ -300,7 +305,56 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 			"campaignName":  v.CampaignName,
 			"adsPlatform":   v.AdsPlatform,
 			"totalReceived": v.TotalReceived,
+			"kolID":         v.KolID,
 		}
+		datas = append(datas, x)
+	}
+
+	data = map[string]interface{}{
+		"rows": rows,
+		"data": datas,
+	}
+
+	return
+}
+
+func (self *postgreRepo) ReportUser(req api.Report) (data map[string]interface{}, err error) {
+
+	type tmp struct {
+		Rnum      string `json:"rnum"`
+		Username  string `json:"username"`
+		Level     string `json:"level"`
+		Id        string `json:"id"`
+		CreatedAt string `json:"created_at"`
+	}
+
+	var (
+		res   []tmp
+		cond  map[string]interface{}
+		datas []map[string]interface{}
+		rows  int64
+	)
+
+	q := self.DB.Model(&model.UserCMS{}).Select("*, row_number() OVER () as rnum").Where(cond)
+
+	q.Count(&rows)
+	err = q.Order(fmt.Sprintf("created_at %s", req.Sort)).Limit(req.Limit).Offset(req.Offset).Find(&res).Error
+	if err != nil {
+		err = errors.Wrap(err, "[postgre.ReportUser]")
+		return
+	}
+
+	for _, v := range res {
+		createdAt, _ := strconv.ParseInt(v.CreatedAt, 10, 64)
+
+		x := map[string]interface{}{
+			"rNum":      v.Rnum,
+			"username":  v.Username,
+			"createdAt": time.Unix(createdAt, 0).Local().Format("2006-01-02 15:04:05"),
+			"id":        v.Id,
+			"level":     v.Level,
+		}
+
 		datas = append(datas, x)
 	}
 

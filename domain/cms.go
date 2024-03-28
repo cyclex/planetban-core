@@ -17,4 +17,8 @@ type CmsUcase interface {
 	CreateKol(c context.Context, req api.Kol) (err error)
 	SetKol(c context.Context, req api.Kol) (err error)
 	DeleteKol(c context.Context, deletedID int64) (err error)
+	CreateUser(c context.Context, req api.User) (err error)
+	SetUser(c context.Context, req api.User) (err error)
+	DeleteUser(c context.Context, deletedID int64) (err error)
+	SetUserPassword(c context.Context, req api.User) (err error)
 }

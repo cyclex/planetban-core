@@ -22,7 +22,7 @@ func ConnectDB(driver, dsn string, debug bool) (*gorm.DB, error) {
 		&model.ConversationsLog{},
 		&model.Messages{},
 		&model.Campaign{}, &model.Kol{}, &model.Participant{},
-		&model.AccessCMS{}, &model.Modul{}, &model.Privilege{}, &model.RuleModul{}, &model.Rule{}, &model.UserCMS{},
+		&model.AccessCMS{}, &model.Modul{}, &model.UserCMS{},
 		&model.Token{},
 	)
 

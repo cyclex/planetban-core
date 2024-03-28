@@ -39,9 +39,11 @@ type Rule struct {
 
 type UserCMS struct {
 	gorm.Model
-	Username    string `gorm:"username" json:"username"`
-	Password    string `gorm:"password" json:"-"`
-	Flag        bool   `gorm:"flag" json:"-"`
-	PrivilegeID string `gorm:"privilege_id" json:"privilegeID"`
-	Token       string `gorm:"token" json:"token"`
+	Username  string `gorm:"username" json:"username"`
+	Password  string `gorm:"password" json:"-"`
+	Flag      bool   `gorm:"flag" json:"-"`
+	Level     string `gorm:"level" json:"level"`
+	Token     string `gorm:"token" json:"token"`
+	CreatedAt int64  `gorm:"autoCreateTime"`
+	UpdatedAt int64  `gorm:"autoUpdateTime"`
 }

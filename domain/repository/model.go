@@ -15,6 +15,12 @@ type ModelRepository interface {
 	RemoveKol(id []int64) (err error)
 	CreateBulkKol(new []model.Kol, skipFirstRow bool) (err error)
 
+	FindUserBy(cond map[string]interface{}) (data []model.UserCMS, err error)
+	SetUser(id int64, kol model.UserCMS) (err error)
+	RemoveUser(id []int64) (err error)
+	CreateUser(new model.UserCMS) (err error)
+	SetUserPassword(username string, kol model.UserCMS) (err error)
+
 	FindCampaignBy(cond map[string]interface{}) (data []model.Campaign, err error)
 	SetCampaign(id int64, campaign model.Campaign) (err error)
 	RemoveCampaign(id []int64) (err error)
@@ -32,6 +38,7 @@ type ModelRepository interface {
 	Access(userID string) (data []map[string]interface{}, err error)
 	ReportCampaign(req api.Report) (data map[string]interface{}, err error)
 	ReportDetail(req api.Report) (data map[string]interface{}, err error)
-	ReportSummary(req api.Report) (data map[string]interface{}, err error)
+	ReportDetailSummary(req api.Report) (data map[string]interface{}, err error)
 	ReportSummaryAggregate(req api.Report) (data map[string]interface{}, err error)
+	ReportUser(req api.Report) (data map[string]interface{}, err error)
 }

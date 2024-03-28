@@ -21,6 +21,7 @@ type Report struct {
 	Limit   int    `json:"limit"`
 	Column  string `json:"column"`
 	Keyword string `json:"keyword"`
+	Sort    string `json:"sort"`
 }
 
 type Campaign struct {
@@ -28,9 +29,9 @@ type Campaign struct {
 	Name           string `json:"name" validate:"required"`
 	StartDate      int64  `json:"startDate" validate:"required"`
 	EndDate        int64  `json:"endDate" validate:"required"`
-	DiscProduct    string `json:"discProduct" validate:"required"`
-	DiscProductBan string `json:"discProductBan" validate:"required"`
-	ProductName    string `json:"productName" validate:"required"`
+	DiscProduct    string `json:"discProduct"`
+	DiscProductBan string `json:"discProductBan"`
+	ProductName    string `json:"productName"`
 	Influencer     []Kol  `json:"kol"`
 	File           string `json:"file"`
 }
@@ -43,6 +44,13 @@ type Kol struct {
 	Source      string `json:"source" validate:"required"`
 	VoucherCode string `json:"voucherCode" validate:"required"`
 	AdsPlatform string `json:"adsPlatform" validate:"required"`
+}
+
+type User struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password"`
+	Level    string `json:"level"`
 }
 
 type ResponseError struct {
