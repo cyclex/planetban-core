@@ -159,7 +159,7 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 	sessID := uuid.NewString()
 	newCLog := model.ConversationsLog{
 		SessionID: sessID,
-		Chat:      strings.ToUpper(payload.Text.Body),
+		Chat:      payload.Text.Body,
 		WAID:      waID,
 		WaPayload: string(jsonPayload),
 	}
@@ -169,7 +169,7 @@ func (self *chatUcase) IncomingMessages(payload api.Message) (trxChatBotID strin
 		return
 	}
 
-	outgoing, err := self.ReplyMessages(waID, strings.ToLower(newCLog.Chat))
+	outgoing, err := self.ReplyMessages(waID, newCLog.Chat)
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.IncomingMessages]")
 		log.Error(err.Error())
