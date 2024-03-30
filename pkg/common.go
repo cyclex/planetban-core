@@ -103,3 +103,29 @@ func ShortUUID(uuid string) string {
 	// Take the first 6 characters from the base64 string
 	return base64Str[:6]
 }
+
+func ReplaceChars(str string, chars []string, replacement string) string {
+	for _, char := range chars {
+		str = strings.Replace(str, char, replacement, -1)
+	}
+	return str
+}
+
+func FormatDate(date time.Time) string {
+	// Define the months in Indonesian
+	months := []string{
+		"Januari", "Februari", "Maret", "April",
+		"Mei", "Juni", "Juli", "Agustus",
+		"September", "Oktober", "November", "Desember",
+	}
+
+	// Extract the day, month, and year
+	day := date.Day()
+	month := months[date.Month()-1]
+	year := date.Year()
+
+	// Format the date
+	formattedDate := fmt.Sprintf("%d %s %d", day, month, year)
+
+	return formattedDate
+}

@@ -47,13 +47,14 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	outgoing = "Maaf, kami tidak mengerti maksud anda. Silahkan menggunakan format chat yang sudah ditentukan"
 
 	usernames := pkg.ExtractUsernames(incoming)
-	campaign := pkg.ExtractSentencesAfterWord(incoming, "promo")
+	campaign := pkg.ExtractSentencesAfterWord(incoming, "Promo")
 
 	if len(usernames) == 0 || len(campaign) == 0 {
 		return
 	}
 
-	usernames[0] = strings.ReplaceAll(usernames[0], "*", "")
+	usernames[0] = strings.ReplaceAll(usernames[0], "*@", "")
+	usernames[0] = pkg.ReplaceChars(usernames[0], []string{"*", "@"}, "")
 	campaign[0] = strings.ReplaceAll(campaign[0], "*", "")
 
 	cond = map[string]interface{}{
@@ -70,7 +71,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	}
 
 	if !pkg.IsTimeInBetween(dataCampaign[0].StartDate, dataCampaign[0].EndDate) {
-		outgoing = "Mohon maaf, program yang anda ikuti sudah berakhir, silahkan menggunakan kode yang sedang digunakan"
+		outgoing = "Mohon maaf, program yang anda ikuti sudah berakhir.\nSilahkan menggunakan kode yang sedang digunakan"
 		return
 	}
 
@@ -100,9 +101,11 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		}
 	}
 
-	timeLeft := time.Unix(dataCampaign[0].EndDate, 0).Local().Format("2006-01-02")
+	timeStart := pkg.FormatDate(time.Unix(dataCampaign[0].StartDate, 0))
+	timeLeft := pkg.FormatDate(time.Unix(dataCampaign[0].EndDate, 0))
+
 	if len(dataParticipant) > 0 {
-		outgoing = fmt.Sprintf("Halo Planeters. Segera gunakan kode voucher kamu yang berlaku sd %s di seluruh toko Planet", timeLeft)
+		outgoing = fmt.Sprintf("Halo Planeters!\nSegera gunakan kode voucher kamu\nyang berlaku sd *%v* di seluruh toko Planet Ban", timeLeft)
 		return
 	}
 
@@ -118,7 +121,8 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
-	outgoing = fmt.Sprintf("Halo Planeters! Berikut kode voucher kamu: %s Kode voucher bisa digunakan untuk mendapat Diskon %s pada Pembelian produk %s Voucher berlaku sd %s di seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct, dataCampaign[0].ProductName, timeLeft)
+	outgoing = fmt.Sprintf("Halo Planeters!\nBerikut kode voucher kamu:\n\n*%s*\n\nKode voucher bisa digunakan untuk\nmendapat *Diskon %s%* pada\nPembelian produk *%s*\n\nVoucher berlaku *%s* sd *%s*\ndi seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct, dataCampaign[0].ProductName, timeStart, timeLeft)
+
 	return
 }
 
