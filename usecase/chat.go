@@ -121,7 +121,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
-	outgoing = fmt.Sprintf("Halo Planeters!\nBerikut kode voucher kamu:\n\n*%s*\n\nKode voucher bisa digunakan untuk\nmendapat *Diskon %s%* pada\nPembelian produk *%s*\n\nVoucher berlaku *%s* sd *%s*\ndi seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct, dataCampaign[0].ProductName, timeStart, timeLeft)
+	outgoing = fmt.Sprintf("Halo Planeters!\nBerikut kode voucher kamu:\n\n*%s*\n\nKode voucher bisa digunakan untuk\nmendapat *Diskon %s* pada\nPembelian produk *%s*\n\nVoucher berlaku *%s* sd *%s*\ndi seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct+"%", dataCampaign[0].ProductName, timeStart, timeLeft)
 
 	return
 }
