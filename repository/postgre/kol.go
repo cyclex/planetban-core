@@ -1,6 +1,7 @@
 package postgre
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/cyclex/planet-ban/domain/model"
@@ -11,7 +12,7 @@ func (self *postgreRepo) FindKolBy(cond map[string]interface{}) (data []model.Ko
 
 	err = self.DB.Where(cond).Find(&data).Error
 	if err != nil {
-		err = errors.Wrap(err, "[postgre.FindKolBy]")
+		err = errors.New("Duplicate kol name")
 	}
 
 	return
@@ -79,7 +80,12 @@ func (self *postgreRepo) CreateBulkKol(rows []model.Kol, skipFirstRow bool) (err
 		row.CreatedAt = time.Now().Local().Unix()
 		if err := tx.Create(&row).Error; err != nil {
 			tx.Rollback()
-			err = errors.Wrapf(err, "[postgre.CreateBulkKol] Baris ke #%d => ", x)
+
+			if skipFirstRow {
+				err = errors.New(fmt.Sprintf("Baris ke #%d => Duplicate kol name", x))
+			} else {
+				err = errors.New("Duplicate kol name")
+			}
 			return err
 		}
 
