@@ -234,12 +234,7 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 		}
 	}
 
-	err = self.m.CreateBulkKol(dataKol, skipFirstRow)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.CreateKol]")
-	}
-
-	return
+	return self.m.CreateBulkKol(dataKol, skipFirstRow)
 }
 
 func (self *cmsUcase) DeleteKol(c context.Context, deletedID int64) (err error) {
@@ -267,12 +262,7 @@ func (self *cmsUcase) SetKol(c context.Context, req api.Kol) (err error) {
 		AdsPlatform: req.AdsPlatform,
 	}
 
-	err = self.m.SetKol(req.KolID, dataCampaign)
-	if err != nil {
-		err = errors.Wrap(err, "[usecase.SetKol]")
-	}
-
-	return
+	return self.m.SetKol(req.KolID, dataCampaign)
 }
 
 func (self *cmsUcase) CreateUser(c context.Context, req api.User) (err error) {
