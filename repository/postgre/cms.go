@@ -283,7 +283,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 	}
 
 	if req.Keyword != "" {
-		column := fmt.Sprintf("%s ilike ?", "k.name")
+		column := fmt.Sprintf("%s ilike ?", "c.name")
 		q = q.Where(column, "%"+req.Keyword+"%")
 	}
 
