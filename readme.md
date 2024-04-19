@@ -14,6 +14,8 @@ There is 2 command in this core services
     supporting rest endpoint for CMS
 2. order
     supporting chatbot and shorten link for influencer
+3. cms
+    provide content management system for campaign planetban
 
 ## Installation
 
@@ -67,6 +69,7 @@ OPTIONS:
 ## Configuration
 
 ```json
+// config.json
 {
   "log": {
     "maxsize": 10,
@@ -106,4 +109,9 @@ sudo systemctl status planetban-server
 
 # Order apps
 sudo systemctl status planetban-webhook
+
+## CMS
+# root application folder
+planetban@planetban-frontend:/var/www/html$ pwd
+/var/www/html
 ```
