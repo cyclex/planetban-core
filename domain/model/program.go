@@ -22,6 +22,7 @@ type Kol struct {
 	Name        string `gorm:"name" json:"name"`
 	Source      string `gorm:"source" json:"source"`
 	VoucherCode string `gorm:"voucher_code" json:"voucherCode"`
+	Status      int64  `gorm:"status" json:"status"`
 	AdsPlatform string `gorm:"add_platform" json:"ads_platform"`
 	CreatedAt   int64  `gorm:"autoCreateTime"`
 	UpdatedAt   int64  `gorm:"autoUpdateTime"`

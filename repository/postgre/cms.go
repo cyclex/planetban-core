@@ -160,6 +160,7 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 		UID         string `json:"uid"`
 		CampaignID  string `json:"campaign_id"`
 		CreatedAt   int64  `json:"created_at"`
+		Status      int64  `json:"status"`
 	}
 
 	var (
@@ -191,6 +192,7 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 			"id":          v.ID,
 			"campaignID":  v.CampaignID,
 			"createdAt":   time.Unix(v.CreatedAt, 0).Format("2006-01-02 15:04:05"),
+			"status":      v.Status,
 		}
 
 		datas = append(datas, x)

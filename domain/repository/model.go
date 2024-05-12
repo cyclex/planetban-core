@@ -27,7 +27,7 @@ type ModelRepository interface {
 	CreateCampaign(campaign model.Campaign, kol []model.Kol) (err error)
 
 	FindParticipant(cond map[string]interface{}) (data []model.Participant, err error)
-	CreateParticipant(new model.Participant) (err error)
+	CreateParticipant(new model.Participant, kol model.Kol) (err error)
 
 	FindToken() (data model.Token, err error)
 	SetToken(updated map[string]interface{}) (err error)

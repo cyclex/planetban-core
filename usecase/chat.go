@@ -78,6 +78,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	cond = map[string]interface{}{
 		"name":        usernames[0],
 		"campaign_id": dataCampaign[0].ID,
+		"status":      1,
 	}
 	dataKol, err := self.m.FindKolBy(cond)
 	if err != nil {
@@ -86,6 +87,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	}
 
 	if len(dataKol) == 0 {
+		outgoing = "Mohon maaf, kode voucher tidak tersedia.\nSilahkan coba beberapa saat lagi"
 		return
 	}
 
@@ -115,7 +117,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		KolID:      int64(dataKol[0].ID),
 		Status:     true,
 	}
-	err = self.m.CreateParticipant(createCP)
+	err = self.m.CreateParticipant(createCP, dataKol[0])
 	if err != nil {
 		err = errors.Wrap(err, "[usecase.ReplyMessages]")
 		return

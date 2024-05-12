@@ -21,7 +21,7 @@ func (self *postgreRepo) FindKolBy(cond map[string]interface{}) (data []model.Ko
 func (self *postgreRepo) SetKol(id int64, kol model.Kol) (err error) {
 
 	kol.UpdatedAt = time.Now().Local().Unix()
-	err = self.DB.Where("id = ?", id).Updates(kol).Error
+	err = self.DB.Where("id = ? and status = ?", id, 1).Updates(kol).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.SetKol]")
 	}
@@ -32,7 +32,7 @@ func (self *postgreRepo) SetKol(id int64, kol model.Kol) (err error) {
 
 func (self *postgreRepo) RemoveKol(id []int64) (err error) {
 
-	err = self.DB.Delete(&model.Kol{}, id).Error
+	err = self.DB.Where("id = ? and status = ?", id, 1).Delete(&model.Kol{}).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.RemoveKol]")
 	}
@@ -44,6 +44,7 @@ func (self *postgreRepo) RemoveKol(id []int64) (err error) {
 func (self *postgreRepo) CreateKol(new model.Kol) (err error) {
 
 	new.CreatedAt = time.Now().Local().Unix()
+	new.Status = 1
 	err = self.DB.Create(&new).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.CreateKol]")
@@ -78,6 +79,7 @@ func (self *postgreRepo) CreateBulkKol(rows []model.Kol, skipFirstRow bool) (err
 		x++
 
 		row.CreatedAt = time.Now().Local().Unix()
+		row.Status = 1
 		if err := tx.Create(&row).Error; err != nil {
 			tx.Rollback()
 
