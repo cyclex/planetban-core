@@ -203,9 +203,10 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 		skipFirstRow bool
 	)
 
+	uid := pkg.ShortUUID(uuid.NewString())
 	if req.Name != "" {
 		dataKol = append(dataKol, model.Kol{
-			UID:         pkg.ShortUUID(uuid.NewString()),
+			UID:         uid,
 			CampaignID:  req.CampaignID,
 			Name:        req.Name,
 			Source:      req.Source,
@@ -224,7 +225,7 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 
 		for _, v := range rows {
 			dataKol = append(dataKol, model.Kol{
-				UID:         pkg.ShortUUID(uuid.NewString()),
+				UID:         uid,
 				CampaignID:  req.CampaignID,
 				Name:        v[2],
 				Source:      v[1],
