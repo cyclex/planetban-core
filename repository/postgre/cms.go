@@ -182,6 +182,10 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 	}
 
 	for _, v := range res {
+		var st = "Tersedia"
+		if v.Status == 2 {
+			st = "Terpakai"
+		}
 		x := map[string]interface{}{
 			"rNum":        v.Rnum,
 			"voucherCode": v.VoucherCode,
@@ -192,7 +196,7 @@ func (self *postgreRepo) ReportDetail(req api.Report) (data map[string]interface
 			"id":          v.ID,
 			"campaignID":  v.CampaignID,
 			"createdAt":   time.Unix(v.CreatedAt, 0).Format("2006-01-02 15:04:05"),
-			"status":      v.Status,
+			"status":      st,
 		}
 
 		datas = append(datas, x)
@@ -227,7 +231,11 @@ func (self *postgreRepo) ReportDetailSummary(req api.Report) (data map[string]in
 
 	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform,participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
 
-	q = q.Where("k.id", req.Keyword)
+	q = q.Where("k.id", req.Column)
+	if req.Keyword != "" {
+		column := fmt.Sprintf("%s ilike ?", "voucher_code")
+		q = q.Where(column, "%"+req.Keyword+"%")
+	}
 	q.Count(&rows)
 	err = q.Order(fmt.Sprintf("participants.created_at %s", req.Sort)).Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
