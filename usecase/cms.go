@@ -245,6 +245,7 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 				"status":      1,
 			}
 			dt, _ := self.m.FindKolBy(cond)
+			uid = pkg.ShortUUID(uuid.NewString())
 			if len(dt) > 0 {
 				uid = dt[0].UID
 			}
