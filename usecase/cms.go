@@ -240,7 +240,7 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 
 		for _, v := range rows {
 			cond := map[string]interface{}{
-				"name":        req.Name,
+				"name":        v[2],
 				"campaign_id": req.CampaignID,
 				"status":      1,
 			}
