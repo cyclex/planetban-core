@@ -201,10 +201,25 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 	var (
 		dataKol      []model.Kol
 		skipFirstRow bool
+		uid          = pkg.ShortUUID(uuid.NewString())
 	)
 
-	uid := pkg.ShortUUID(uuid.NewString())
 	if req.Name != "" {
+		cond := map[string]interface{}{
+			"name":        req.Name,
+			"campaign_id": req.CampaignID,
+			"status":      1,
+		}
+		dt, errs := self.m.FindKolBy(cond)
+		if errs != nil {
+			err = errors.Wrap(errs, "[usecase.ReplyMessages]")
+			return
+		}
+
+		if len(dt) > 0 {
+			uid = dt[0].UID
+		}
+
 		dataKol = append(dataKol, model.Kol{
 			UID:         uid,
 			CampaignID:  req.CampaignID,
@@ -224,6 +239,16 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 		}
 
 		for _, v := range rows {
+			cond := map[string]interface{}{
+				"name":        req.Name,
+				"campaign_id": req.CampaignID,
+				"status":      1,
+			}
+			dt, _ := self.m.FindKolBy(cond)
+			if len(dt) > 0 {
+				uid = dt[0].UID
+			}
+
 			dataKol = append(dataKol, model.Kol{
 				UID:         uid,
 				CampaignID:  req.CampaignID,
