@@ -298,7 +298,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 
 	q.Count(&rows)
 	q = q.Order(fmt.Sprintf("c.name %s", req.Sort))
-	q = q.Group("k_source, k_name, k_ads_platform, c.name, k.u_kol_id")
+	q = q.Group("k_source, k_name, k_ads_platform, c.name, u_kol_id")
 	err = q.Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportSummary]")
