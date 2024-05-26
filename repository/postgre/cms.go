@@ -215,10 +215,10 @@ func (self *postgreRepo) ReportDetailSummary(req api.Report) (data map[string]in
 	type summary struct {
 		Rnum         string `json:"rnum"`
 		VoucherCode  string `json:"voucher_code"`
-		Source       string `json:"source"`
-		Name         string `json:"name"`
+		Source       string `json:"k_source" gorm:"column:k_source"`
+		Name         string `json:"k_name" gorm:"column:k_name"`
 		CampaignName string `json:"campaign_name"`
-		AdsPlatform  string `json:"ads_platform"`
+		AdsPlatform  string `json:"k_ads_platform" gorm:"column:k_ads_platform"`
 		Msisdn       string `json:"msisdn"`
 		CreatedAt    string `json:"created_at"`
 		CampaignID   string `json:"campaign_id"`
@@ -229,9 +229,9 @@ func (self *postgreRepo) ReportDetailSummary(req api.Report) (data map[string]in
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform,participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k_source,k_name, k_ads_platform, participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join campaigns c on c.id = k.campaign_id")
 
-	q = q.Where("k.id", req.Column)
+	q = q.Where("u_kol_id", req.Column)
 	if req.Keyword != "" {
 		column := fmt.Sprintf("%s ilike ?", "voucher_code")
 		q = q.Where(column, "%"+req.Keyword+"%")
