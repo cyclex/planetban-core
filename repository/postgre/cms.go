@@ -277,7 +277,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		CampaignName  string `json:"campaign_name"`
 		AdsPlatform   string `json:"k_ads_platform" gorm:"column:k_ads_platform"`
 		TotalReceived int64  `json:"total_received"`
-		KolID         string `json:"kol_id" gorm:"uKolID"`
+		KolID         string `json:"kol_id" gorm:"u_kol_id"`
 	}
 	var (
 		sum   []summary
@@ -285,7 +285,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("uKolID, k_source, k_name, k_ads_platform, COUNT(1) AS total_received, c.name as campaign_name, row_number() OVER () as rnum").Joins("join campaigns c on c.id = participants.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("u_kol_id, k_source, k_name, k_ads_platform, COUNT(1) AS total_received, c.name as campaign_name, row_number() OVER () as rnum").Joins("join campaigns c on c.id = participants.campaign_id")
 
 	if req.From != 0 || req.To != 0 {
 		q = q.Where("participants.created_at BETWEEN ? AND ?", req.From, req.To)
@@ -298,7 +298,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 
 	q.Count(&rows)
 	q = q.Order(fmt.Sprintf("c.name %s", req.Sort))
-	q = q.Group("k_source, k_name, k_ads_platform, c.name, k.uKolID")
+	q = q.Group("k_source, k_name, k_ads_platform, c.name, k.u_kol_id")
 	err = q.Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportSummary]")
