@@ -120,6 +120,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		KAdsPlatform: dataKol[0].AdsPlatform,
 		KName:        dataKol[0].Name,
 		UKolID:       pkg.ReturnMD5(fmt.Sprintf("%d.%s.%s.%s", dataCampaign[0].ID, dataKol[0].Source, dataKol[0].AdsPlatform, dataKol[0].Name)),
+		KVoucherCode: dataKol[0].VoucherCode,
 	}
 	err = self.m.CreateParticipant(createCP, dataKol[0])
 	if err != nil {
