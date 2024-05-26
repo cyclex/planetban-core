@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -128,4 +129,15 @@ func FormatDate(date time.Time) string {
 	formattedDate := fmt.Sprintf("%d %s %d", day, month, year)
 
 	return formattedDate
+}
+
+func ReturnMD5(data string) string {
+
+	// Generate MD5 hash
+	hash := md5.New()
+	hash.Write([]byte(data))
+	hashBytes := hash.Sum(nil)
+
+	// Convert hash to hexadecimal string
+	return hex.EncodeToString(hashBytes)
 }

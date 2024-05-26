@@ -39,4 +39,5 @@ type Participant struct {
 	KSource      string `gorm:"k_source" json:"k_source"`
 	KAdsPlatform string `gorm:"k_add_platform" json:"k_ads_platform"`
 	KName        string `gorm:"k_name" json:"k_name"`
+	UKolID       string `gorm:"u_kol_id" json:"uKolID"`
 }
