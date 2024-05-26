@@ -272,10 +272,10 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 
 	type summary struct {
 		Rnum          string `json:"rnum"`
-		Source        string `json:"k_source"`
-		Name          string `json:"k_name"`
+		Source        string `json:"k_source" gorm:"column:k_source"`
+		Name          string `json:"k_name" gorm:"column:k_name"`
 		CampaignName  string `json:"campaign_name"`
-		AdsPlatform   string `json:"k_ads_platform"`
+		AdsPlatform   string `json:"k_ads_platform" gorm:"column:k_ads_platform"`
 		TotalReceived int64  `json:"total_received"`
 	}
 	var (
