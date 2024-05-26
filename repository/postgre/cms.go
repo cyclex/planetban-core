@@ -272,13 +272,11 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 
 	type summary struct {
 		Rnum          string `json:"rnum"`
-		VoucherCode   string `json:"voucher_code"`
-		Source        string `json:"source"`
-		Name          string `json:"name"`
+		Source        string `json:"k_source"`
+		Name          string `json:"k_name"`
 		CampaignName  string `json:"campaign_name"`
-		AdsPlatform   string `json:"ads_platform"`
+		AdsPlatform   string `json:"k_ads_platform"`
 		TotalReceived int64  `json:"total_received"`
-		KolID         string `json:"kol_id"`
 	}
 	var (
 		sum   []summary
@@ -286,7 +284,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k.source,k.name, k.ads_platform, k.created_at, COUNT(k.name) AS total_received, c.name as campaign_name, k.id as kol_id, row_number() OVER () as rnum").Joins("join kols k on participants.kol_id = k.id").Joins("join campaigns c on c.id = k.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("k_source, k_name, k_ads_platform, COUNT(1) AS total_received, c.name as campaign_name, row_number() OVER () as rnum").Joins("join campaigns c on c.id = participants.campaign_id")
 
 	if req.From != 0 || req.To != 0 {
 		q = q.Where("participants.created_at BETWEEN ? AND ?", req.From, req.To)
@@ -299,7 +297,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 
 	q.Count(&rows)
 	q = q.Order(fmt.Sprintf("c.name %s", req.Sort))
-	q = q.Group("k.voucher_code, k.source, k.name, k.ads_platform, k.created_at, c.name, k.id")
+	q = q.Group("k_source, k_name, k_ads_platform, c.name")
 	err = q.Limit(req.Limit).Offset(req.Offset).Find(&sum).Error
 	if err != nil {
 		err = errors.Wrap(err, "[postgre.ReportSummary]")
@@ -309,13 +307,11 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 	for _, v := range sum {
 		x := map[string]interface{}{
 			"rNum":          v.Rnum,
-			"voucherCode":   v.VoucherCode,
 			"source":        v.Source,
 			"kolName":       v.Name,
 			"campaignName":  v.CampaignName,
 			"adsPlatform":   v.AdsPlatform,
 			"totalReceived": v.TotalReceived,
-			"kolID":         v.KolID,
 		}
 		datas = append(datas, x)
 	}

@@ -238,6 +238,7 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 			return err
 		}
 
+		myMap := make(map[string]string)
 		for _, v := range rows {
 			cond := map[string]interface{}{
 				"name":        v[2],
@@ -248,6 +249,13 @@ func (self *cmsUcase) CreateKol(c context.Context, req api.Kol) (err error) {
 			uid = pkg.ShortUUID(uuid.NewString())
 			if len(dt) > 0 {
 				uid = dt[0].UID
+			} else {
+				value, exists := myMap[v[2]]
+				if exists {
+					uid = value
+				} else {
+					myMap[v[2]] = uid
+				}
 			}
 
 			dataKol = append(dataKol, model.Kol{

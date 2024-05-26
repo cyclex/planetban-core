@@ -30,10 +30,13 @@ type Kol struct {
 
 type Participant struct {
 	gorm.Model
-	MSISDN     string `gorm:"msisdn" json:"msisdn"`
-	CampaignID int64  `gorm:"campaign_id" json:"campaignID"`
-	KolID      int64  `gorm:"kol_id" json:"kolID"`
-	Status     bool   `gorm:"status" json:"status"`
-	CreatedAt  int64  `gorm:"autoCreateTime"`
-	UpdatedAt  int64  `gorm:"autoUpdateTime"`
+	MSISDN       string `gorm:"msisdn" json:"msisdn"`
+	CampaignID   int64  `gorm:"campaign_id" json:"campaignID"`
+	KolID        int64  `gorm:"kol_id" json:"kolID"`
+	Status       bool   `gorm:"status" json:"status"`
+	CreatedAt    int64  `gorm:"autoCreateTime"`
+	UpdatedAt    int64  `gorm:"autoUpdateTime"`
+	KSource      string `gorm:"k_source" json:"k_source"`
+	KAdsPlatform string `gorm:"k_add_platform" json:"k_ads_platform"`
+	KName        string `gorm:"k_name" json:"k_name"`
 }

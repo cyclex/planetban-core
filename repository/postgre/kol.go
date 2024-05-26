@@ -12,7 +12,7 @@ func (self *postgreRepo) FindKolBy(cond map[string]interface{}) (data []model.Ko
 
 	err = self.DB.Where(cond).Find(&data).Error
 	if err != nil {
-		err = errors.New("Duplicate kol name")
+		err = errors.New("Duplicate voucher code")
 	}
 
 	return
@@ -84,9 +84,9 @@ func (self *postgreRepo) CreateBulkKol(rows []model.Kol, skipFirstRow bool) (err
 			tx.Rollback()
 
 			if skipFirstRow {
-				err = errors.New(fmt.Sprintf("Baris ke #%d => Duplicate kol name", x))
+				err = errors.New(fmt.Sprintf("Baris ke #%d => Duplicate voucher code", x))
 			} else {
-				err = errors.New("Duplicate kol name")
+				err = errors.New("Duplicate voucher code")
 			}
 			return err
 		}

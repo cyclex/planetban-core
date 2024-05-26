@@ -112,10 +112,13 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	}
 
 	createCP := model.Participant{
-		MSISDN:     waID,
-		CampaignID: int64(dataCampaign[0].ID),
-		KolID:      int64(dataKol[0].ID),
-		Status:     true,
+		MSISDN:       waID,
+		CampaignID:   int64(dataCampaign[0].ID),
+		KolID:        int64(dataKol[0].ID),
+		Status:       true,
+		KSource:      dataKol[0].Source,
+		KAdsPlatform: dataKol[0].AdsPlatform,
+		KName:        dataKol[0].Name,
 	}
 	err = self.m.CreateParticipant(createCP, dataKol[0])
 	if err != nil {
