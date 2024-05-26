@@ -277,7 +277,7 @@ func (self *postgreRepo) ReportSummaryAggregate(req api.Report) (data map[string
 		CampaignName  string `json:"campaign_name"`
 		AdsPlatform   string `json:"k_ads_platform" gorm:"column:k_ads_platform"`
 		TotalReceived int64  `json:"total_received"`
-		KolID         string `json:"kol_id" gorm:"u_kol_id"`
+		KolID         string `json:"kol_id" gorm:"column:u_kol_id"`
 	}
 	var (
 		sum   []summary
