@@ -229,7 +229,7 @@ func (self *postgreRepo) ReportDetailSummary(req api.Report) (data map[string]in
 		rows  int64
 	)
 
-	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k_source,k_name, k_ads_platform, participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join campaigns c on c.id = k.campaign_id")
+	q := self.DB.Model(&model.Participant{}).Select("k.voucher_code,k_source,k_name, k_ads_platform, participants.msisdn, participants.created_at, c.name as campaign_name, c.id as campaign_id, row_number() OVER () as rnum").Joins("join campaigns c on c.id = participants.campaign_id")
 
 	q = q.Where("u_kol_id", req.Column)
 	if req.Keyword != "" {
