@@ -128,7 +128,8 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 		return
 	}
 
-	outgoing = fmt.Sprintf("Halo Planeters!\nBerikut kode voucher kamu:\n\n*%s*\n\nKode voucher bisa digunakan untuk\nmendapat *Diskon %s* pada\nPembelian produk *%s*\n\nVoucher berlaku *%s* sd *%s*\ndi seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct+"%", dataCampaign[0].ProductName, timeStart, timeLeft)
+	// outgoing = fmt.Sprintf("Halo Planeters!\nBerikut kode voucher kamu:\n\n*%s*\n\nKode voucher bisa digunakan untuk\nmendapat *Diskon %s* pada\nPembelian produk *%s*\n\nVoucher berlaku *%s* sd *%s*\ndi seluruh toko Planet Ban.", dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct+"%", dataCampaign[0].ProductName, timeStart, timeLeft)
+	outgoing = fmt.Sprintf("Hi, terima kasih sudah follow @planet_ban 😊\n\nSebagai apresiasi, berikut voucher spesial untuk kamu:\n\n•⁠  ⁠Kode Voucher: *%s*\n•⁠  ⁠Diskon: *%s*\n•⁠  ⁠Produk: *%s*\n•⁠  ⁠Masa Berlaku: *%s* sd *%s*\n\nTunjukkan pesan ini di toko Planet Ban terdekat dan nikmati diskonnya! 😉\n\nTetap nyaman di jalan bersama oli X-TEN yang awet 2x lebih lama dengan teknologi ESTER. Jangan lewatkan juga servis #RasaMesinBaru untuk performa motor seperti baru, termasuk pembersihan throttle body, ruang bakar, oli, dan CVT.\n\nSampai jumpa di Planet Ban terdekat! 🚀",, dataKol[0].VoucherCode, dataCampaign[0].DiscountProduct+"%", dataCampaign[0].ProductName, timeStart, timeLeft)
 
 	return
 }
