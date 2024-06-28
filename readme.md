@@ -29,6 +29,9 @@ cd planet-ban
 
 # Install dependencies
 make build
+
+# Execute sql script
+source schema/master.sql
 ```
 
 ## Usage
