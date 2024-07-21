@@ -78,6 +78,16 @@ func ExtractSentencesAfterWord(text, keyword string) []string {
 	return result
 }
 
+func ExtractStringAfterKeyword(text, keyword string) string {
+	// Find the position of the keyword in the text
+	index := strings.Index(text, keyword)
+	if index != -1 {
+		// Extract and return the substring after the keyword
+		return strings.TrimSpace(text[index+len(keyword):])
+	}
+	return ""
+}
+
 func IsTimeInBetween(startEpoch, endEpoch int64) bool {
 	// Convert epoch values to time.Time
 	startTime := time.Unix(startEpoch, 0)

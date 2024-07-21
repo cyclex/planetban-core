@@ -47,7 +47,7 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 	outgoing = "Maaf, kami tidak mengerti maksud anda. Silahkan menggunakan format chat yang sudah ditentukan"
 
 	usernames := pkg.ExtractUsernames(incoming)
-	campaign := pkg.ExtractSentencesAfterWord(incoming, "Promo")
+	campaign := pkg.ExtractStringAfterKeyword(incoming, "Promo")
 
 	if len(usernames) == 0 || len(campaign) == 0 {
 		return
@@ -55,10 +55,10 @@ func (self *chatUcase) ReplyMessages(waID, incoming string) (outgoing string, er
 
 	usernames[0] = strings.ReplaceAll(usernames[0], "*@", "")
 	usernames[0] = pkg.ReplaceChars(usernames[0], []string{"*", "@"}, "")
-	campaign[0] = strings.ReplaceAll(campaign[0], "*", "")
+	campaign = strings.ReplaceAll(campaign, "*", "")
 
 	cond = map[string]interface{}{
-		"name": campaign[0],
+		"name": campaign,
 	}
 	dataCampaign, err := self.m.FindCampaignBy(cond)
 	if err != nil {
