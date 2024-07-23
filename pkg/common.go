@@ -48,7 +48,8 @@ func ContainsInt(s []int, str int) bool {
 
 func ExtractUsernames(text string) []string {
 	// Define the regular expression pattern
-	pattern := `@([a-zA-Z0-9_]+)`
+	// pattern := `@([a-zA-Z0-9_]+)`
+	pattern := `@\w+(\.\w+)*`
 
 	// Compile the regular expression
 	re := regexp.MustCompile(pattern)
